@@ -39,7 +39,7 @@ const SLOT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 /* ── Hover Scramble: swim_ ↔ U+1F421 ── */
 const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+_-./\\|#@!?";
-const WORD_DEFAULT = "swim_";
+const WORD_DEFAULT = "swim";
 const WORD_HOVER = "U+1F421";
 
 function SwimText() {
@@ -102,24 +102,28 @@ function SwimText() {
     };
   }, []);
 
-  // Always render maxLen slots to prevent width shifts
-  const padded = display.length < maxLen
-    ? [...display, ...Array(maxLen - display.length).fill(" ")]
-    : display;
-  const targetWord = isHovered ? WORD_HOVER.padEnd(maxLen, " ") : WORD_DEFAULT.padEnd(maxLen, " ");
+  // Only render actual visible characters — no spacer spans
+  const visibleChars = display.filter(c => c !== " ");
+  const targetWord = isHovered ? WORD_HOVER : WORD_DEFAULT;
 
   return (
-    <p
+    <span
       className={`animate-fade-up delay-2 swim-text swim-hover ${isHovered ? "swim-hover-active" : ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {padded.map((c, i) => (
-        <span key={i} className={`swim-char ${c !== targetWord[i] ? "swim-char-scrambling" : ""}`}>
-          {c === " " ? "\u00A0" : c}
-        </span>
-      ))}
-    </p>
+      <span className="swim-chars-inner">
+        {visibleChars.map((c, i) => (
+          <span
+            key={i}
+            className={`swim-char ${c !== (targetWord[i] ?? "") ? "swim-char-scrambling" : ""}`}
+          >
+            {c}
+          </span>
+        ))}
+        {!isHovered && <span className="terminal-cursor">_</span>}
+      </span>
+    </span>
   );
 }
 
@@ -290,7 +294,7 @@ export default function Home() {
   const [daysLeft, setDaysLeft] = useState(0);
   useEffect(() => {
     const start = new Date('2026-01-30').getTime();
-    const end = new Date('2026-04-30').getTime();
+    const end = new Date('2026-05-30').getTime();
     const now = Date.now();
     setProgressPercent(Math.round(Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100)) * 100) / 100);
     const msPerDay = 86400000;

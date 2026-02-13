@@ -240,14 +240,23 @@ body {
 .swim-hover {
   cursor: none;
   user-select: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 0;
+  display: inline-flex;
+  justify-content: center;
+  /* Fixed width so centering never shifts */
+  width: 10em;
+}
+
+.swim-chars-inner {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 100%;
 }
 
 .swim-char {
   display: inline-block;
   transition: transform 0.12s ease, opacity 0.12s ease, color 0.25s ease, text-shadow 0.25s ease;
-  min-width: 0.65em;
   text-align: center;
 }
 
