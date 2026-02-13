@@ -236,6 +236,32 @@ body {
   margin-left: 0.08em;
 }
 
+/* ── Swim Hover Scramble ── */
+.swim-hover {
+  cursor: none;
+  user-select: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.swim-char {
+  display: inline-block;
+  transition: transform 0.12s ease, opacity 0.12s ease, color 0.25s ease, text-shadow 0.25s ease;
+  min-width: 0.65em;
+  text-align: center;
+}
+
+.swim-char-scrambling {
+  opacity: 0.5;
+  transform: translateY(-1px);
+}
+
+/* Settled hover state — whitish orange with glow */
+.swim-hover-active .swim-char:not(.swim-char-scrambling) {
+  color: #f0c8a0;
+  text-shadow: 0 0 10px rgba(210, 140, 60, 0.35), 0 0 24px rgba(210, 140, 60, 0.15);
+}
+
 /* ── Image Animations ── */
 @keyframes imageReveal {
   from {
@@ -364,6 +390,7 @@ body {
   transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
   transform: translate(-50%, -50%);
   box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
+  opacity: 0;
 }
 
 .custom-cursor.expanded {
@@ -382,6 +409,7 @@ body {
   z-index: 10001;
   transform: translate(-50%, -50%);
   transition: opacity 0.3s ease;
+  opacity: 0;
 }
 
 /* ── Magnetic Button ── */

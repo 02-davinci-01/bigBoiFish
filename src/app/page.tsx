@@ -37,6 +37,92 @@ const PROMPT_FILES: PromptFile[] = [
 /* ── Slot Machine Letter ── */
 const SLOT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+/* ── Hover Scramble: swim_ ↔ U+1F421 ── */
+const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+_-./\\|#@!?";
+const WORD_DEFAULT = "swim_";
+const WORD_HOVER = "U+1F421";
+
+function SwimText() {
+  const [display, setDisplay] = useState(WORD_DEFAULT.split(""));
+  const [isHovered, setIsHovered] = useState(false);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  const maxLen = Math.max(WORD_DEFAULT.length, WORD_HOVER.length);
+
+  const scrambleTo = useCallback((target: string) => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+
+    const padded = target.padEnd(maxLen, " ");
+
+    // Immediately expand display to max length
+    setDisplay((prev) => {
+      const next = [...prev];
+      while (next.length < maxLen) next.push(" ");
+      return next;
+    });
+
+    for (let i = 0; i < maxLen; i++) {
+      const tickCount = 3 + Math.floor(Math.random() * 5);
+      for (let t = 0; t < tickCount; t++) {
+        const timeout = setTimeout(() => {
+          setDisplay((prev) => {
+            const next = [...prev];
+            next[i] = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+            return next;
+          });
+        }, t * 50 + i * 70);
+        timeoutsRef.current.push(timeout);
+      }
+      // Settle to target char
+      const settleTimeout = setTimeout(() => {
+        setDisplay((prev) => {
+          const next = [...prev];
+          next[i] = padded[i];
+          return next;
+        });
+      }, tickCount * 50 + i * 70);
+      timeoutsRef.current.push(settleTimeout);
+    }
+  }, [maxLen]);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+    scrambleTo(WORD_HOVER);
+  }, [scrambleTo]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    scrambleTo(WORD_DEFAULT);
+  }, [scrambleTo]);
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  // Always render maxLen slots to prevent width shifts
+  const padded = display.length < maxLen
+    ? [...display, ...Array(maxLen - display.length).fill(" ")]
+    : display;
+  const targetWord = isHovered ? WORD_HOVER.padEnd(maxLen, " ") : WORD_DEFAULT.padEnd(maxLen, " ");
+
+  return (
+    <p
+      className={`animate-fade-up delay-2 swim-text swim-hover ${isHovered ? "swim-hover-active" : ""}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {padded.map((c, i) => (
+        <span key={i} className={`swim-char ${c !== targetWord[i] ? "swim-char-scrambling" : ""}`}>
+          {c === " " ? "\u00A0" : c}
+        </span>
+      ))}
+    </p>
+  );
+}
+
 function SlotLetter({
   target,
   delay,
@@ -275,9 +361,7 @@ export default function Home() {
             >
               BIG BOI FISH
             </h1>
-            <p className="animate-fade-up delay-2 swim-text">
-              swim<span className="terminal-cursor">_</span>
-            </p>
+            <SwimText />
           </div>
 
           {/* Image with progress bar cutting through */}
