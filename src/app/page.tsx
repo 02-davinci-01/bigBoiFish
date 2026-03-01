@@ -34,16 +34,16 @@ const PROMPT_FILES: PromptFile[] = [
   },
   {
     id: "nom-nom-pdf",
-    name: "nom_nom-protected.pdf",
+    name: "nom_nom_.pdf",
     description: "Bibamus, moriendum est",
-    path: "/prompts/nom_nom-protected.pdf",
+    path: "/prompts/nom_nom.pdf",
     size: "155 KB",
   },
   {
     id: "redbull-pdf",
-    name: "redbull_-protected.pdf",
+    name: "redbull_.pdf",
     description: "save a can for me.",
-    path: "/prompts/redbull_-protected.pdf",
+    path: "/prompts/redbull_.pdf",
     size: "68 KB",
   },
 ];
