@@ -32,6 +32,20 @@ const PROMPT_FILES: PromptFile[] = [
     path: "/prompts/swim_.pdf",
     size: "847 KB",
   },
+  {
+    id: "nom-nom-pdf",
+    name: "nom_nom-protected.pdf",
+    description: "Bibamus, moriendum est",
+    path: "/prompts/nom_nom-protected.pdf",
+    size: "155 KB",
+  },
+  {
+    id: "redbull-pdf",
+    name: "redbull_-protected.pdf",
+    description: "save a can for me.",
+    path: "/prompts/redbull_-protected.pdf",
+    size: "68 KB",
+  },
 ];
 
 /* ── Slot Machine Letter ── */
@@ -445,6 +459,12 @@ export default function Home() {
           </div>
         </div>
 
+      </div>
+
+      {/* Subtle March indicator */}
+      <div className="march-tag animate-fade-up delay-5">
+        <span className="march-blossom">&#x2727;</span>
+        <span className="march-label">march</span>
       </div>
 
       {/* Footer — fixed to viewport bottom */}

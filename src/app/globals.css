@@ -387,7 +387,7 @@ body {
   color: var(--bg);
 }
 
-/* ── Custom Cursor ── */
+/* ── Custom Cursor (March cherry blossom edition) ── */
 .custom-cursor {
   position: fixed;
   width: 32px;
@@ -396,29 +396,51 @@ body {
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
-  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
+  box-shadow: 0 0 8px 2px rgba(244, 163, 187, 0.25), 0 0 0 1px rgba(255,255,255,0.5);
   opacity: 0;
 }
 
 .custom-cursor.expanded {
   width: 56px;
   height: 56px;
-  border-color: var(--grey-light);
+  border-color: rgba(244, 163, 187, 0.6);
+  box-shadow: 0 0 16px 4px rgba(244, 163, 187, 0.3), 0 0 0 1px rgba(255,255,255,0.5);
 }
 
 .custom-cursor-dot {
   position: fixed;
   width: 6px;
   height: 6px;
-  background: var(--fg);
+  background: #f4a3bb;
   border-radius: 50%;
   pointer-events: none;
   z-index: 10001;
   transform: translate(-50%, -50%);
   transition: opacity 0.3s ease;
   opacity: 0;
+  box-shadow: 0 0 6px 2px rgba(244, 163, 187, 0.4);
+}
+
+/* ── Petal Trail ── */
+.petal-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.cursor-petal {
+  position: fixed;
+  pointer-events: none;
+  color: rgba(244, 163, 187, 0.55);
+  font-size: 10px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 0 4px rgba(244, 163, 187, 0.3);
+  will-change: transform, opacity;
 }
 
 /* ── Magnetic Button ── */
@@ -1227,6 +1249,47 @@ body {
 .modal-footer-author {
   font-weight: 500;
   color: var(--grey-dark);
+}
+
+/* ── March Seasonal Tag ── */
+.march-tag {
+  position: fixed;
+  bottom: 16px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  color: var(--grey-light);
+  z-index: 100;
+  transition: color 0.4s ease;
+}
+
+.march-tag:hover {
+  color: var(--grey-dark);
+}
+
+.march-blossom {
+  font-size: 0.6rem;
+  opacity: 0.5;
+  animation: gentlePulse 4s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.march-tag:hover .march-blossom {
+  opacity: 0.9;
+}
+
+.march-label {
+  font-weight: 400;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(1.1); }
 }
 
 /* ── Site Footer ── */

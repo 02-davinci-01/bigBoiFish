@@ -1,15 +1,70 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
+
+const PETAL_CHARS = ["\u2740", "\u2741", "\u2743", "\u273F", "\u2727"];
+const PETAL_POOL_SIZE = 30;
+const SPAWN_DISTANCE = 24; // px moved before spawning a new petal
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
+  const petalContainerRef = useRef<HTMLDivElement>(null);
+  const petalPool = useRef<HTMLSpanElement[]>([]);
+  const petalIndex = useRef(0);
+  const lastPetalPos = useRef({ x: 0, y: 0 });
+
+  const spawnPetal = useCallback((x: number, y: number) => {
+    const pool = petalPool.current;
+    if (pool.length === 0) return;
+
+    const dx = x - lastPetalPos.current.x;
+    const dy = y - lastPetalPos.current.y;
+    if (dx * dx + dy * dy < SPAWN_DISTANCE * SPAWN_DISTANCE) return;
+
+    lastPetalPos.current = { x, y };
+
+    const el = pool[petalIndex.current % PETAL_POOL_SIZE];
+    petalIndex.current++;
+
+    // Random petal character
+    el.textContent = PETAL_CHARS[Math.floor(Math.random() * PETAL_CHARS.length)];
+
+    // Random drift
+    const driftX = (Math.random() - 0.5) * 60;
+    const fallY = 30 + Math.random() * 50;
+    const rotation = Math.random() * 360;
+    const duration = 1200 + Math.random() * 800;
+    const size = 8 + Math.random() * 6;
+
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.fontSize = `${size}px`;
+    el.style.opacity = "1";
+    el.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+    el.style.transition = "none";
+
+    // Force reflow then animate
+    void el.offsetWidth;
+    el.style.transition = `all ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+    el.style.transform = `translate(calc(-50% + ${driftX}px), calc(-50% + ${fallY}px)) rotate(${rotation}deg)`;
+    el.style.opacity = "0";
+  }, []);
 
   useEffect(() => {
     const cursor = cursorRef.current;
     const dot = dotRef.current;
-    if (!cursor || !dot) return;
+    const petalContainer = petalContainerRef.current;
+    if (!cursor || !dot || !petalContainer) return;
+
+    // Build petal pool
+    petalPool.current = [];
+    for (let i = 0; i < PETAL_POOL_SIZE; i++) {
+      const span = document.createElement("span");
+      span.className = "cursor-petal";
+      petalContainer.appendChild(span);
+      petalPool.current.push(span);
+    }
 
     // Start hidden until the mouse actually moves into the page
     cursor.style.opacity = "0";
@@ -26,7 +81,6 @@ export default function CustomCursor() {
       mouseY = e.clientY;
 
       if (!hasMouseMoved) {
-        // First move: snap ring position so it doesn't animate from 0,0
         hasMouseMoved = true;
         cursorX = mouseX;
         cursorY = mouseY;
@@ -34,14 +88,16 @@ export default function CustomCursor() {
         cursor.style.top = `${cursorY}px`;
         cursor.style.opacity = "1";
         dot.style.opacity = "1";
+        lastPetalPos.current = { x: mouseX, y: mouseY };
       }
 
-      // dot follows immediately
       dot.style.left = `${mouseX}px`;
       dot.style.top = `${mouseY}px`;
+
+      // Spawn petal trail
+      spawnPetal(mouseX, mouseY);
     };
 
-    // Smooth follow for ring
     const animate = () => {
       cursorX += (mouseX - cursorX) * 0.12;
       cursorY += (mouseY - cursorY) * 0.12;
@@ -50,7 +106,6 @@ export default function CustomCursor() {
       requestAnimationFrame(animate);
     };
 
-    // Expand on interactive elements
     const onMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (
@@ -94,13 +149,16 @@ export default function CustomCursor() {
       window.removeEventListener("mouseover", onMouseOver);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
+      // Clean up petals
+      while (petalContainer.firstChild) petalContainer.removeChild(petalContainer.firstChild);
     };
-  }, []);
+  }, [spawnPetal]);
 
   return (
     <>
       <div ref={cursorRef} className="custom-cursor" />
       <div ref={dotRef} className="custom-cursor-dot" />
+      <div ref={petalContainerRef} className="petal-container" />
     </>
   );
 }
