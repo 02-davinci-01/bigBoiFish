@@ -1,72 +1,56 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
 const PETAL_CHARS = ["\u2740", "\u2741", "\u2743", "\u273F", "\u2727"];
-const PETAL_POOL_SIZE = 30;
-const SPAWN_DISTANCE = 24; // px moved before spawning a new petal
+const MAX_PETALS = 18;
+const SPAWN_DIST_SQ = 40 * 40; // squared px distance before spawning
+
+interface Petal {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  rotV: number;
+  size: number;
+  char: string;
+  life: number;
+  maxLife: number;
+}
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
-  const petalContainerRef = useRef<HTMLDivElement>(null);
-  const petalPool = useRef<HTMLSpanElement[]>([]);
-  const petalIndex = useRef(0);
-  const lastPetalPos = useRef({ x: 0, y: 0 });
-
-  const spawnPetal = useCallback((x: number, y: number) => {
-    const pool = petalPool.current;
-    if (pool.length === 0) return;
-
-    const dx = x - lastPetalPos.current.x;
-    const dy = y - lastPetalPos.current.y;
-    if (dx * dx + dy * dy < SPAWN_DISTANCE * SPAWN_DISTANCE) return;
-
-    lastPetalPos.current = { x, y };
-
-    const el = pool[petalIndex.current % PETAL_POOL_SIZE];
-    petalIndex.current++;
-
-    // Random petal character
-    el.textContent = PETAL_CHARS[Math.floor(Math.random() * PETAL_CHARS.length)];
-
-    // Random drift
-    const driftX = (Math.random() - 0.5) * 60;
-    const fallY = 30 + Math.random() * 50;
-    const rotation = Math.random() * 360;
-    const duration = 1200 + Math.random() * 800;
-    const size = 8 + Math.random() * 6;
-
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    el.style.fontSize = `${size}px`;
-    el.style.opacity = "1";
-    el.style.transform = `translate(-50%, -50%) rotate(0deg)`;
-    el.style.transition = "none";
-
-    // Force reflow then animate
-    void el.offsetWidth;
-    el.style.transition = `all ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
-    el.style.transform = `translate(calc(-50% + ${driftX}px), calc(-50% + ${fallY}px)) rotate(${rotation}deg)`;
-    el.style.opacity = "0";
-  }, []);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
     const dot = dotRef.current;
-    const petalContainer = petalContainerRef.current;
-    if (!cursor || !dot || !petalContainer) return;
+    const canvas = canvasRef.current;
+    if (!cursor || !dot || !canvas) return;
 
-    // Build petal pool
-    petalPool.current = [];
-    for (let i = 0; i < PETAL_POOL_SIZE; i++) {
-      const span = document.createElement("span");
-      span.className = "cursor-petal";
-      petalContainer.appendChild(span);
-      petalPool.current.push(span);
-    }
+    const ctx = canvas.getContext("2d")!;
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Start hidden until the mouse actually moves into the page
+    const onResize = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    window.addEventListener("resize", onResize);
+
     cursor.style.opacity = "0";
     dot.style.opacity = "0";
 
@@ -75,6 +59,26 @@ export default function CustomCursor() {
     let cursorX = 0;
     let cursorY = 0;
     let hasMouseMoved = false;
+    let lastSpawnX = 0;
+    let lastSpawnY = 0;
+    const petals: Petal[] = [];
+    let rafId = 0;
+
+    const spawnPetal = (x: number, y: number) => {
+      if (petals.length >= MAX_PETALS) petals.shift();
+      petals.push({
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: 0.3 + Math.random() * 0.5,
+        rot: Math.random() * 360,
+        rotV: (Math.random() - 0.5) * 3,
+        size: 8 + Math.random() * 5,
+        char: PETAL_CHARS[Math.floor(Math.random() * PETAL_CHARS.length)],
+        life: 1,
+        maxLife: 60 + Math.floor(Math.random() * 40), // frames
+      });
+    };
 
     const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
@@ -84,26 +88,59 @@ export default function CustomCursor() {
         hasMouseMoved = true;
         cursorX = mouseX;
         cursorY = mouseY;
-        cursor.style.left = `${cursorX}px`;
-        cursor.style.top = `${cursorY}px`;
+        cursor.style.transform = `translate(${cursorX - 16}px, ${cursorY - 16}px)`;
         cursor.style.opacity = "1";
         dot.style.opacity = "1";
-        lastPetalPos.current = { x: mouseX, y: mouseY };
+        lastSpawnX = mouseX;
+        lastSpawnY = mouseY;
       }
 
-      dot.style.left = `${mouseX}px`;
-      dot.style.top = `${mouseY}px`;
+      dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
 
-      // Spawn petal trail
-      spawnPetal(mouseX, mouseY);
+      const dx = mouseX - lastSpawnX;
+      const dy = mouseY - lastSpawnY;
+      if (dx * dx + dy * dy > SPAWN_DIST_SQ) {
+        spawnPetal(mouseX, mouseY);
+        lastSpawnX = mouseX;
+        lastSpawnY = mouseY;
+      }
     };
 
-    const animate = () => {
+    const tick = () => {
+      // Smooth follow ring
       cursorX += (mouseX - cursorX) * 0.12;
       cursorY += (mouseY - cursorY) * 0.12;
-      cursor.style.left = `${cursorX}px`;
-      cursor.style.top = `${cursorY}px`;
-      requestAnimationFrame(animate);
+      cursor.style.transform = `translate(${cursorX - 16}px, ${cursorY - 16}px)`;
+
+      // Draw petals on canvas
+      ctx.clearRect(0, 0, w, h);
+      for (let i = petals.length - 1; i >= 0; i--) {
+        const p = petals[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rotV;
+        p.life -= 1 / p.maxLife;
+
+        if (p.life <= 0) {
+          petals.splice(i, 1);
+          continue;
+        }
+
+        const alpha = p.life * 0.5;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.font = `${p.size}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = `rgba(244, 163, 187, ${alpha})`;
+        ctx.shadowColor = `rgba(244, 163, 187, ${alpha * 0.5})`;
+        ctx.shadowBlur = 4;
+        ctx.fillText(p.char, 0, 0);
+        ctx.restore();
+      }
+
+      rafId = requestAnimationFrame(tick);
     };
 
     const onMouseOver = (e: MouseEvent) => {
@@ -142,23 +179,23 @@ export default function CustomCursor() {
     window.addEventListener("mouseover", onMouseOver);
     document.addEventListener("mouseleave", onMouseLeave);
     document.addEventListener("mouseenter", onMouseEnter);
-    animate();
+    rafId = requestAnimationFrame(tick);
 
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseover", onMouseOver);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
-      // Clean up petals
-      while (petalContainer.firstChild) petalContainer.removeChild(petalContainer.firstChild);
     };
-  }, [spawnPetal]);
+  }, []);
 
   return (
     <>
+      <canvas ref={canvasRef} className="petal-canvas" />
       <div ref={cursorRef} className="custom-cursor" />
       <div ref={dotRef} className="custom-cursor-dot" />
-      <div ref={petalContainerRef} className="petal-container" />
     </>
   );
 }
