@@ -192,184 +192,53 @@ function SlotLetter({
   );
 }
 
-/* ── Fake hacking lines for the terminal effect ── */
-const HACK_LINES = [
-  "$ ssh root@192.168.1.1 -p 443",
-  "connecting... established.",
-  "root@bigboifish:~# cat /etc/shadow",
-  "root:$6$xYz...:19842:0:99999:7:::",
-  "daemon:*:19842:0:99999:7:::",
-  "root@bigboifish:~# nmap -sV 10.0.0.0/24",
-  "PORT     STATE SERVICE  VERSION",
-  "22/tcp   open  ssh      OpenSSH 9.2",
-  "443/tcp  open  ssl      nginx 1.24",
-  "root@bigboifish:~# python3 exploit.py --target=*",
-  "  [*] Injecting payload... 0x4F 0x50 0x45 0x4E",
-  "  [*] Bypassing firewall rules...",
-  "  [+] PAYLOAD DELIVERED",
-  "  [+] Escalating privileges...",
-  "root@bigboifish:~# echo $ACCESS_GRANTED",
-  "TRUE",
-  "",
-  "  ██████╗ ██████╗       ██████╗  █████╗ ██╗   ██╗██╗███╗   ██╗ ██████╗██╗       ██████╗ ██╗",
-  "  ██╔═══██╗╚════██╗      ██╔══██╗██╔══██╗██║   ██║██║████╗  ██║██╔════╝██║      ██╔═══██╗██║",
-  "  ██║   ██║ █████╔╝█████╗██║  ██║███████║██║   ██║██║██╔██╗ ██║██║     ██║█████╗██║   ██║██║",
-  "  ██║   ██║██╔═══╝ ╚════╝██║  ██║██╔══██║╚██╗ ██╔╝██║██║╚██╗██║██║     ██║╚════╝██║   ██║██║",
-  "  ╚██████╔╝███████╗      ██████╔╝██║  ██║ ╚████╔╝ ██║██║ ╚████║╚██████╗██║      ╚██████╔╝██║",
-  "   ╚═════╝ ╚══════╝      ╚═════╝ ╚═╝  ╚═╝  ╚═══╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝       ╚═════╝ ╚═╝",
-  "",
-  "  >> 02-davinci-01 has hacked your system <<",
-  "",
-];
-
-/* ── Page Loader — Rolodex → Glitch → Hacking Terminal ── */
+/* ── Page Loader — Standard Rolodex ── */
 function PageLoader() {
   const TITLE = "B I G   B O I   F I S H";
-  const [phase, setPhase] = useState<'rolodex' | 'glitch' | 'hacking' | 'prompt' | 'aprilFools' | 'fadeOut'>('rolodex');
+  const [phase, setPhase] = useState<'rolodex' | 'light' | 'fadeOut'>('rolodex');
   const [settledCount, setSettledCount] = useState(0);
-  const [glitchActive, setGlitchActive] = useState(false);
-  const [visibleLines, setVisibleLines] = useState(0);
-  const [inputValue, setInputValue] = useState('');
-  const [showAprilMsg, setShowAprilMsg] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
   const totalLetters = TITLE.replace(/ /g, '').length;
 
-  // Once enough rolodex letters settle (~60%), trigger glitch
   const onLetterSettled = useCallback(() => {
     setSettledCount((c) => c + 1);
   }, []);
 
+  // All letters settled → lighten background
   useEffect(() => {
     if (phase !== 'rolodex') return;
-    const threshold = Math.floor(totalLetters * 0.55);
-    if (settledCount >= threshold) {
-      // Start glitch effect
-      setGlitchActive(true);
-      const t = setTimeout(() => {
-        setPhase('hacking');
-        setGlitchActive(false);
-      }, 1400); // glitch lasts 1.4s
+    if (settledCount >= totalLetters) {
+      const t = setTimeout(() => setPhase('light'), 400);
       return () => clearTimeout(t);
     }
   }, [phase, settledCount, totalLetters]);
 
-  // Phase: Print hacking lines one by one
+  // Light phase → fade out
   useEffect(() => {
-    if (phase !== 'hacking') return;
-    if (visibleLines >= HACK_LINES.length) {
-      const t = setTimeout(() => setPhase('prompt'), 600);
-      return () => clearTimeout(t);
-    }
-    const line = HACK_LINES[visibleLines];
-    const isArt = line.includes('██') || line.includes('╗') || line.includes('╚') || line === '';
-    const delay = isArt ? 60 : 50 + Math.random() * 80;
-    const t = setTimeout(() => setVisibleLines((v) => v + 1), delay);
-    return () => clearTimeout(t);
-  }, [phase, visibleLines]);
-
-  // Auto-scroll terminal
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
-  }, [visibleLines, phase]);
-
-  // Focus input when prompt phase starts
-  useEffect(() => {
-    if (phase === 'prompt') {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [phase]);
-
-  // Handle name submission
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim().toLowerCase() === 'goldfish') {
-      setShowAprilMsg(true);
-      setTimeout(() => setPhase('aprilFools'), 100);
-    } else {
-      setInputValue('');
-      inputRef.current?.focus();
-    }
-  }, [inputValue]);
-
-  // After april fools message, fade out
-  useEffect(() => {
-    if (phase !== 'aprilFools') return;
-    const t = setTimeout(() => setPhase('fadeOut'), 2800);
+    if (phase !== 'light') return;
+    const t = setTimeout(() => setPhase('fadeOut'), 800);
     return () => clearTimeout(t);
   }, [phase]);
-
-  const isHackPhase = phase === 'hacking' || phase === 'prompt' || phase === 'aprilFools';
 
   const loaderClass = [
     'page-loader',
-    isHackPhase ? 'hack-terminal' : '',
+    phase === 'light' ? 'loader-light' : '',
     phase === 'fadeOut' ? 'loader-exit' : '',
-    glitchActive ? 'glitch-active' : '',
   ].filter(Boolean).join(' ');
 
   return (
     <div className={loaderClass}>
-      {/* ── Rolodex phase ── */}
-      {(phase === 'rolodex' || glitchActive) && (
-        <div className={`slot-container ${glitchActive ? 'glitch-text' : ''}`}>
-          <div className="slot-text">
-            {TITLE.split("").map((ch, i) => (
-              <SlotLetter
-                key={i}
-                target={ch}
-                delay={120 + i * 70}
-                onSettled={ch !== ' ' ? onLetterSettled : undefined}
-              />
-            ))}
-          </div>
+      <div className="slot-container">
+        <div className="slot-text">
+          {TITLE.split("").map((ch, i) => (
+            <SlotLetter
+              key={i}
+              target={ch}
+              delay={120 + i * 70}
+              onSettled={ch !== ' ' ? onLetterSettled : undefined}
+            />
+          ))}
         </div>
-      )}
-
-      {/* ── Hacking terminal phase ── */}
-      {isHackPhase && (
-        <div className="hack-screen" ref={terminalRef}>
-          <div className="hack-scanline" />
-          <div className="hack-lines">
-            {HACK_LINES.slice(0, visibleLines).map((line, i) => (
-              <div key={i} className={`hack-line ${line.includes('██') || line.includes('╗') || line.includes('╚') ? 'hack-ascii' : ''} ${line.includes('>>') ? 'hack-highlight' : ''}`}>
-                {line || '\u00A0'}
-              </div>
-            ))}
-          </div>
-
-          {/* Prompt: enter name */}
-          {phase === 'prompt' && !showAprilMsg && (
-            <div className="hack-prompt">
-              <div className="hack-line">{'>'} enter your name to regain access:</div>
-              <form onSubmit={handleSubmit} className="hack-input-row">
-                <span className="hack-caret">{'>'}</span>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="hack-input"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </form>
-            </div>
-          )}
-
-          {/* April fools reveal */}
-          {showAprilMsg && (
-            <div className="hack-april">
-              <div className="hack-line hack-april-line">{'>'} goldFish</div>
-              <div className="hack-line">&nbsp;</div>
-              <div className="hack-line hack-hehe">hehehehe</div>
-              <div className="hack-line hack-hehe">april fools day :&#41;</div>
-            </div>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
