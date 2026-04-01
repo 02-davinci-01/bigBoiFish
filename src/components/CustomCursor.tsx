@@ -2,19 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
-const PETAL_CHARS = ["\u2740", "\u2741", "\u2743", "\u273F", "\u2727"];
-const MAX_PETALS = 18;
-const SPAWN_DIST_SQ = 40 * 40; // squared px distance before spawning
+const MAX_RINGS = 3;
+const SPAWN_INTERVAL = 2400; // ms — one slow pulse every ~2.4s
+const RING_MAX_RADIUS = 120; // px — wide gentle expansion
+const RING_LIFETIME = 180;   // frames — very slow fade (~3s at 60fps)
 
-interface Petal {
+interface Ring {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  rot: number;
-  rotV: number;
-  size: number;
-  char: string;
+  radius: number;
   life: number;
   maxLife: number;
 }
@@ -59,24 +55,18 @@ export default function CustomCursor() {
     let cursorX = 0;
     let cursorY = 0;
     let hasMouseMoved = false;
-    let lastSpawnX = 0;
-    let lastSpawnY = 0;
-    const petals: Petal[] = [];
+    const rings: Ring[] = [];
     let rafId = 0;
+    let lastSpawnTime = 0;
 
-    const spawnPetal = (x: number, y: number) => {
-      if (petals.length >= MAX_PETALS) petals.shift();
-      petals.push({
+    const spawnRing = (x: number, y: number) => {
+      if (rings.length >= MAX_RINGS) rings.shift();
+      rings.push({
         x,
         y,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: 0.3 + Math.random() * 0.5,
-        rot: Math.random() * 360,
-        rotV: (Math.random() - 0.5) * 3,
-        size: 8 + Math.random() * 5,
-        char: PETAL_CHARS[Math.floor(Math.random() * PETAL_CHARS.length)],
+        radius: 0,
         life: 1,
-        maxLife: 60 + Math.floor(Math.random() * 40), // frames
+        maxLife: RING_LIFETIME,
       });
     };
 
@@ -91,53 +81,94 @@ export default function CustomCursor() {
         cursor.style.transform = `translate(${cursorX - 16}px, ${cursorY - 16}px)`;
         cursor.style.opacity = "1";
         dot.style.opacity = "1";
-        lastSpawnX = mouseX;
-        lastSpawnY = mouseY;
       }
 
       dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
-
-      const dx = mouseX - lastSpawnX;
-      const dy = mouseY - lastSpawnY;
-      if (dx * dx + dy * dy > SPAWN_DIST_SQ) {
-        spawnPetal(mouseX, mouseY);
-        lastSpawnX = mouseX;
-        lastSpawnY = mouseY;
-      }
     };
 
-    const tick = () => {
-      // Smooth follow ring
-      cursorX += (mouseX - cursorX) * 0.12;
-      cursorY += (mouseY - cursorY) * 0.12;
+    const tick = (time: number) => {
+      // Very smooth, lazy cursor follow — like warmth drifting
+      cursorX += (mouseX - cursorX) * 0.07;
+      cursorY += (mouseY - cursorY) * 0.07;
       cursor.style.transform = `translate(${cursorX - 16}px, ${cursorY - 16}px)`;
 
-      // Draw petals on canvas
-      ctx.clearRect(0, 0, w, h);
-      for (let i = petals.length - 1; i >= 0; i--) {
-        const p = petals[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.rotV;
-        p.life -= 1 / p.maxLife;
+      // Spawn rings slowly
+      if (hasMouseMoved && time - lastSpawnTime > SPAWN_INTERVAL) {
+        spawnRing(mouseX, mouseY);
+        lastSpawnTime = time;
+      }
 
-        if (p.life <= 0) {
-          petals.splice(i, 1);
+      ctx.clearRect(0, 0, w, h);
+
+      if (hasMouseMoved) {
+        // Deep breathing glow — very slow 5s sine cycle
+        const breathe = 0.5 + 0.5 * Math.sin(time * 0.00125);
+
+        // Outer warmth halo — large soft ambient glow
+        const haloRadius = 50 + breathe * 30;
+        const haloAlpha = 0.03 + breathe * 0.03;
+        const haloGrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, haloRadius);
+        haloGrad.addColorStop(0, `rgba(220, 190, 90, ${haloAlpha})`);
+        haloGrad.addColorStop(0.5, `rgba(210, 180, 80, ${haloAlpha * 0.4})`);
+        haloGrad.addColorStop(1, `rgba(210, 180, 80, 0)`);
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, haloRadius, 0, Math.PI * 2);
+        ctx.fillStyle = haloGrad;
+        ctx.fill();
+
+        // Inner core glow — brighter, tighter
+        const coreRadius = 12 + breathe * 6;
+        const coreAlpha = 0.12 + breathe * 0.08;
+        const coreGrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, coreRadius);
+        coreGrad.addColorStop(0, `rgba(240, 210, 100, ${coreAlpha})`);
+        coreGrad.addColorStop(1, `rgba(210, 180, 80, 0)`);
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, coreRadius, 0, Math.PI * 2);
+        ctx.fillStyle = coreGrad;
+        ctx.fill();
+
+        // Subtle sun rays — 8 thin lines radiating outward, rotating slowly
+        const rayCount = 8;
+        const rotation = time * 0.0002; // very slow spin
+        const rayLen = 20 + breathe * 14;
+        const rayAlpha = 0.04 + breathe * 0.03;
+        ctx.save();
+        ctx.translate(mouseX, mouseY);
+        ctx.rotate(rotation);
+        for (let r = 0; r < rayCount; r++) {
+          const angle = (r / rayCount) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(angle) * 8, Math.sin(angle) * 8);
+          ctx.lineTo(Math.cos(angle) * rayLen, Math.sin(angle) * rayLen);
+          ctx.strokeStyle = `rgba(210, 180, 80, ${rayAlpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // Draw expanding rings — thin, gentle
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const r = rings[i];
+        r.life -= 1 / r.maxLife;
+        // Ease-out expansion: fast start, slow end
+        const progress = 1 - r.life;
+        r.radius = Math.sqrt(progress) * RING_MAX_RADIUS;
+
+        if (r.life <= 0) {
+          rings.splice(i, 1);
           continue;
         }
 
-        const alpha = p.life * 0.5;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rot * Math.PI) / 180);
-        ctx.font = `${p.size}px serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = `rgba(244, 163, 187, ${alpha})`;
-        ctx.shadowColor = `rgba(244, 163, 187, ${alpha * 0.5})`;
-        ctx.shadowBlur = 4;
-        ctx.fillText(p.char, 0, 0);
-        ctx.restore();
+        const alpha = r.life * 0.2;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(210, 180, 80, ${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.shadowColor = `rgba(210, 180, 80, ${alpha * 0.4})`;
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
       }
 
       rafId = requestAnimationFrame(tick);

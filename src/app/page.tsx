@@ -36,7 +36,7 @@ const PROMPT_FILES: PromptFile[] = [
     id: "nom-nom-pdf",
     name: "nom_nom_.pdf",
     description: "Bibamus, moriendum est",
-    path: "/prompts/nom_nom.pdf",
+    path: "/prompts/nom_nom_.pdf",
     size: "155 KB",
   },
   {
@@ -192,99 +192,184 @@ function SlotLetter({
   );
 }
 
-/* ── Page Loader with Slot Machine + Typing Phase ── */
+/* ── Fake hacking lines for the terminal effect ── */
+const HACK_LINES = [
+  "$ ssh root@192.168.1.1 -p 443",
+  "connecting... established.",
+  "root@bigboifish:~# cat /etc/shadow",
+  "root:$6$xYz...:19842:0:99999:7:::",
+  "daemon:*:19842:0:99999:7:::",
+  "root@bigboifish:~# nmap -sV 10.0.0.0/24",
+  "PORT     STATE SERVICE  VERSION",
+  "22/tcp   open  ssh      OpenSSH 9.2",
+  "443/tcp  open  ssl      nginx 1.24",
+  "root@bigboifish:~# python3 exploit.py --target=*",
+  "  [*] Injecting payload... 0x4F 0x50 0x45 0x4E",
+  "  [*] Bypassing firewall rules...",
+  "  [+] PAYLOAD DELIVERED",
+  "  [+] Escalating privileges...",
+  "root@bigboifish:~# echo $ACCESS_GRANTED",
+  "TRUE",
+  "",
+  "  ██████╗ ██████╗       ██████╗  █████╗ ██╗   ██╗██╗███╗   ██╗ ██████╗██╗       ██████╗ ██╗",
+  "  ██╔═══██╗╚════██╗      ██╔══██╗██╔══██╗██║   ██║██║████╗  ██║██╔════╝██║      ██╔═══██╗██║",
+  "  ██║   ██║ █████╔╝█████╗██║  ██║███████║██║   ██║██║██╔██╗ ██║██║     ██║█████╗██║   ██║██║",
+  "  ██║   ██║██╔═══╝ ╚════╝██║  ██║██╔══██║╚██╗ ██╔╝██║██║╚██╗██║██║     ██║╚════╝██║   ██║██║",
+  "  ╚██████╔╝███████╗      ██████╔╝██║  ██║ ╚████╔╝ ██║██║ ╚████║╚██████╗██║      ╚██████╔╝██║",
+  "   ╚═════╝ ╚══════╝      ╚═════╝ ╚═╝  ╚═╝  ╚═══╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝       ╚═════╝ ╚═╝",
+  "",
+  "  >> 02-davinci-01 has hacked your system <<",
+  "",
+];
+
+/* ── Page Loader — Rolodex → Glitch → Hacking Terminal ── */
 function PageLoader() {
-  const text = "BIG BOI FISH";
-  const typingText = "blub hup :)";
-  const [phase, setPhase] = useState<'slot' | 'fadeSlot' | 'typing' | 'fadeOut'>('slot');
-  const [typedChars, setTypedChars] = useState(0);
-  const settledCount = useRef(0);
-  const letterCount = text.replace(/ /g, "").length;
+  const TITLE = "B I G   B O I   F I S H";
+  const [phase, setPhase] = useState<'rolodex' | 'glitch' | 'hacking' | 'prompt' | 'aprilFools' | 'fadeOut'>('rolodex');
+  const [settledCount, setSettledCount] = useState(0);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [visibleLines, setVisibleLines] = useState(0);
+  const [inputValue, setInputValue] = useState('');
+  const [showAprilMsg, setShowAprilMsg] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const totalLetters = TITLE.replace(/ /g, '').length;
 
-  const handleSettled = useCallback(() => {
-    settledCount.current++;
-    if (settledCount.current >= letterCount) {
-      // Slot done → fade out slot text, transition bg to white
-      setTimeout(() => setPhase('fadeSlot'), 500);
-    }
-  }, [letterCount]);
+  // Once enough rolodex letters settle (~60%), trigger glitch
+  const onLetterSettled = useCallback(() => {
+    setSettledCount((c) => c + 1);
+  }, []);
 
-  // After slot fades, start typing phase
   useEffect(() => {
-    if (phase === 'fadeSlot') {
-      const t = setTimeout(() => setPhase('typing'), 800);
+    if (phase !== 'rolodex') return;
+    const threshold = Math.floor(totalLetters * 0.55);
+    if (settledCount >= threshold) {
+      // Start glitch effect
+      setGlitchActive(true);
+      const t = setTimeout(() => {
+        setPhase('hacking');
+        setGlitchActive(false);
+      }, 1400); // glitch lasts 1.4s
       return () => clearTimeout(t);
+    }
+  }, [phase, settledCount, totalLetters]);
+
+  // Phase: Print hacking lines one by one
+  useEffect(() => {
+    if (phase !== 'hacking') return;
+    if (visibleLines >= HACK_LINES.length) {
+      const t = setTimeout(() => setPhase('prompt'), 600);
+      return () => clearTimeout(t);
+    }
+    const line = HACK_LINES[visibleLines];
+    const isArt = line.includes('██') || line.includes('╗') || line.includes('╚') || line === '';
+    const delay = isArt ? 60 : 50 + Math.random() * 80;
+    const t = setTimeout(() => setVisibleLines((v) => v + 1), delay);
+    return () => clearTimeout(t);
+  }, [phase, visibleLines]);
+
+  // Auto-scroll terminal
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [visibleLines, phase]);
+
+  // Focus input when prompt phase starts
+  useEffect(() => {
+    if (phase === 'prompt') {
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [phase]);
 
-  // Human-like typing with random delays
-  useEffect(() => {
-    if (phase !== 'typing') return;
-    if (typedChars >= typingText.length) {
-      // Done typing, pause then fade out
-      const t = setTimeout(() => setPhase('fadeOut'), 800);
-      return () => clearTimeout(t);
+  // Handle name submission
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim().toLowerCase() === 'goldfish') {
+      setShowAprilMsg(true);
+      setTimeout(() => setPhase('aprilFools'), 100);
+    } else {
+      setInputValue('');
+      inputRef.current?.focus();
     }
-    const baseDelay = 90;
-    const randomDelay = baseDelay + Math.random() * 120 + (Math.random() < 0.15 ? 200 : 0);
-    const t = setTimeout(() => setTypedChars((c) => c + 1), randomDelay);
-    return () => clearTimeout(t);
-  }, [phase, typedChars, typingText.length]);
+  }, [inputValue]);
 
-  // Calculate sequential delay per letter (skip spaces)
-  let nonSpaceIndex = 0;
-  const letters = text.split("").map((char, i) => {
-    if (char === " ") {
-      return { char, delay: 0, key: i };
-    }
-    const delay = nonSpaceIndex * 180;
-    nonSpaceIndex++;
-    return { char, delay, key: i };
-  });
+  // After april fools message, fade out
+  useEffect(() => {
+    if (phase !== 'aprilFools') return;
+    const t = setTimeout(() => setPhase('fadeOut'), 2800);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  const isHackPhase = phase === 'hacking' || phase === 'prompt' || phase === 'aprilFools';
 
   const loaderClass = [
     'page-loader',
-    (phase === 'fadeSlot' || phase === 'typing' || phase === 'fadeOut') ? 'loader-light' : '',
+    isHackPhase ? 'hack-terminal' : '',
     phase === 'fadeOut' ? 'loader-exit' : '',
+    glitchActive ? 'glitch-active' : '',
   ].filter(Boolean).join(' ');
 
   return (
     <div className={loaderClass}>
-      <div className="slot-container">
-        {/* Slot machine text */}
-        <div
-          className="slot-text"
-          style={{
-            opacity: phase === 'fadeSlot' || phase === 'typing' || phase === 'fadeOut' ? 0 : 1,
-            transition: 'opacity 0.5s ease',
-            position: phase === 'typing' || phase === 'fadeOut' ? 'absolute' : 'relative',
-          }}
-        >
-          {letters.map((l) => (
-            <SlotLetter
-              key={l.key}
-              target={l.char}
-              delay={l.delay}
-              onSettled={l.char !== " " ? handleSettled : undefined}
-            />
-          ))}
-        </div>
-
-        {/* Typing phase text */}
-        {(phase === 'typing' || phase === 'fadeOut') && (
-          <div className="typing-text">
-            {typingText.split('').map((char, i) => (
-              <span key={i}>
-                {i === typedChars && <span className="typing-cursor" />}
-                <span style={{ visibility: i < typedChars ? 'visible' : 'hidden' }}>
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              </span>
+      {/* ── Rolodex phase ── */}
+      {(phase === 'rolodex' || glitchActive) && (
+        <div className={`slot-container ${glitchActive ? 'glitch-text' : ''}`}>
+          <div className="slot-text">
+            {TITLE.split("").map((ch, i) => (
+              <SlotLetter
+                key={i}
+                target={ch}
+                delay={120 + i * 70}
+                onSettled={ch !== ' ' ? onLetterSettled : undefined}
+              />
             ))}
-            {typedChars >= typingText.length && <span className="typing-cursor" />}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ── Hacking terminal phase ── */}
+      {isHackPhase && (
+        <div className="hack-screen" ref={terminalRef}>
+          <div className="hack-scanline" />
+          <div className="hack-lines">
+            {HACK_LINES.slice(0, visibleLines).map((line, i) => (
+              <div key={i} className={`hack-line ${line.includes('██') || line.includes('╗') || line.includes('╚') ? 'hack-ascii' : ''} ${line.includes('>>') ? 'hack-highlight' : ''}`}>
+                {line || '\u00A0'}
+              </div>
+            ))}
+          </div>
+
+          {/* Prompt: enter name */}
+          {phase === 'prompt' && !showAprilMsg && (
+            <div className="hack-prompt">
+              <div className="hack-line">{'>'} enter your name to regain access:</div>
+              <form onSubmit={handleSubmit} className="hack-input-row">
+                <span className="hack-caret">{'>'}</span>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  className="hack-input"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </form>
+            </div>
+          )}
+
+          {/* April fools reveal */}
+          {showAprilMsg && (
+            <div className="hack-april">
+              <div className="hack-line hack-april-line">{'>'} goldFish</div>
+              <div className="hack-line">&nbsp;</div>
+              <div className="hack-line hack-hehe">hehehehe</div>
+              <div className="hack-line hack-hehe">april fools day :&#41;</div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -353,15 +438,51 @@ export default function Home() {
 
       {/* Main content — single viewport, no scroll */}
       <div className="page-content">
-        {/* Subtle radial gradient bg */}
+        {/* Subtle sun radial gradient bg */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 30%, #f4f4f5 0%, #ffffff 70%)",
+              "radial-gradient(ellipse at 50% 30%, rgba(210, 180, 80, 0.06) 0%, #f7f7f8 60%)",
           }}
           aria-hidden="true"
         />
+        {/* Pulsing sun wave rings */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            width: '300px',
+            height: '300px',
+            borderRadius: '50%',
+            border: '1px solid rgba(210, 180, 80, 0.08)',
+            transform: 'translate(-50%, -50%)',
+            animation: 'sunWave 4s ease-out infinite',
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            width: '300px',
+            height: '300px',
+            borderRadius: '50%',
+            border: '1px solid rgba(210, 180, 80, 0.08)',
+            transform: 'translate(-50%, -50%)',
+            animation: 'sunWave 4s ease-out 1.3s infinite',
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            width: '300px',
+            height: '300px',
+            borderRadius: '50%',
+            border: '1px solid rgba(210, 180, 80, 0.08)',
+            transform: 'translate(-50%, -50%)',
+            animation: 'sunWave 4s ease-out 2.6s infinite',
+          }} />
+        </div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-2xl">
@@ -461,10 +582,10 @@ export default function Home() {
 
       </div>
 
-      {/* Subtle March indicator */}
-      <div className="march-tag animate-fade-up delay-5">
-        <span className="march-blossom">&#x2727;</span>
-        <span className="march-label">march</span>
+      {/* Subtle April indicator */}
+      <div className="april-tag animate-fade-up delay-5">
+        <span className="april-sun">&#x2600;</span>
+        <span className="april-label">april</span>
       </div>
 
       {/* Footer — fixed to viewport bottom */}
