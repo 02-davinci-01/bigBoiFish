@@ -256,13 +256,13 @@ export default function Home() {
   const [progressHover, setProgressHover] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
-  // Progress bar: Jan 30, 2026 → Apr 30, 2026
+  // Progress bar: Jan 30, 2026 → Jun 30, 2026
   const [progressPercent, setProgressPercent] = useState(0);
   const [daysCompleted, setDaysCompleted] = useState(0);
   const [daysLeft, setDaysLeft] = useState(0);
   useEffect(() => {
     const start = new Date('2026-01-30').getTime();
-    const end = new Date('2026-05-30').getTime();
+    const end = new Date('2026-06-30').getTime();
     const now = Date.now();
     setProgressPercent(Math.round(Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100)) * 100) / 100);
     const msPerDay = 86400000;
@@ -307,16 +307,16 @@ export default function Home() {
 
       {/* Main content — single viewport, no scroll */}
       <div className="page-content">
-        {/* Subtle sun radial gradient bg */}
+        {/* Subtle pond-green radial gradient bg */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 30%, rgba(210, 180, 80, 0.06) 0%, #f7f7f8 60%)",
+              "radial-gradient(ellipse at 50% 30%, rgba(90, 138, 94, 0.05) 0%, #f7f8f5 60%)",
           }}
           aria-hidden="true"
         />
-        {/* Pulsing sun wave rings */}
+        {/* Pond ripple rings */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           <div style={{
             position: 'absolute',
@@ -325,9 +325,9 @@ export default function Home() {
             width: '300px',
             height: '300px',
             borderRadius: '50%',
-            border: '1px solid rgba(210, 180, 80, 0.08)',
+            border: '1px solid rgba(90, 138, 94, 0.06)',
             transform: 'translate(-50%, -50%)',
-            animation: 'sunWave 4s ease-out infinite',
+            animation: 'pondRipple 5s ease-out infinite',
           }} />
           <div style={{
             position: 'absolute',
@@ -336,9 +336,9 @@ export default function Home() {
             width: '300px',
             height: '300px',
             borderRadius: '50%',
-            border: '1px solid rgba(210, 180, 80, 0.08)',
+            border: '1px solid rgba(90, 138, 94, 0.06)',
             transform: 'translate(-50%, -50%)',
-            animation: 'sunWave 4s ease-out 1.3s infinite',
+            animation: 'pondRipple 5s ease-out 1.6s infinite',
           }} />
           <div style={{
             position: 'absolute',
@@ -347,9 +347,9 @@ export default function Home() {
             width: '300px',
             height: '300px',
             borderRadius: '50%',
-            border: '1px solid rgba(210, 180, 80, 0.08)',
+            border: '1px solid rgba(90, 138, 94, 0.06)',
             transform: 'translate(-50%, -50%)',
-            animation: 'sunWave 4s ease-out 2.6s infinite',
+            animation: 'pondRipple 5s ease-out 3.2s infinite',
           }} />
         </div>
 
@@ -451,10 +451,23 @@ export default function Home() {
 
       </div>
 
-      {/* Subtle April indicator */}
-      <div className="april-tag animate-fade-up delay-5">
-        <span className="april-sun">&#x2600;</span>
-        <span className="april-label">april</span>
+      {/* May indicator — ASCII frog with Latin message */}
+      <div className="may-tag animate-fade-up delay-5">
+        <div className="may-frog-wrapper">
+          <span className="may-frog-ascii">{`     _     _
+    (')-=-(')
+  __(   "   )__
+ / _/'-----'\\_ \\
+_\\ \\     // //_
+>___)/_\\---/_\\(___<`}</span>
+          <div className="frog-message-box">
+            &ldquo;divinus piscis aureus es et semper eris&rdquo;
+          </div>
+        </div>
+        <div className="may-label-row">
+          <span className="may-frog-icon">&#x1F33F;</span>
+          <span className="may-label">may</span>
+        </div>
       </div>
 
       {/* Footer — fixed to viewport bottom */}
