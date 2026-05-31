@@ -9,6 +9,7 @@ import Toast from "@/components/Toast";
 import WeatherWidget from "@/components/WeatherWidget";
 import ScrollingMessage from "@/components/ScrollingMessage";
 import ImageModal from "@/components/ImageModal";
+import CosmicTransmit from "@/components/CosmicTransmit";
 
 const PROMPT_FILES: PromptFile[] = [
   {
@@ -369,6 +370,12 @@ export default function Home() {
             >
               BIG BOI FISH
             </h1>
+            <div className="animate-fade-up delay-2 quote-row">
+              <p className="cosmic-quote">
+                &ldquo;The divine hermit&apos;s blessing and prayers are always there&rdquo;
+              </p>
+              <CosmicTransmit />
+            </div>
             <SwimText />
           </div>
 
@@ -451,24 +458,6 @@ export default function Home() {
 
       </div>
 
-      {/* May indicator — ASCII frog with Latin message */}
-      <div className="may-tag animate-fade-up delay-5">
-        <div className="may-frog-wrapper">
-          <span className="may-frog-ascii">{`     _     _
-    (')-=-(')
-  __(   "   )__
- / _/'-----'\\_ \\
-_\\ \\     // //_
->___)/_\\---/_\\(___<`}</span>
-          <div className="frog-message-box">
-            &ldquo;divinus piscis aureus es et semper eris&rdquo;
-          </div>
-        </div>
-        <div className="may-label-row">
-          <span className="may-frog-icon">&#x1F33F;</span>
-          <span className="may-label">may</span>
-        </div>
-      </div>
 
       {/* Footer — fixed to viewport bottom */}
       <div className="site-footer">

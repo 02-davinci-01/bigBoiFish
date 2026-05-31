@@ -390,28 +390,28 @@ body {
   color: var(--bg);
 }
 
-/* ── Custom Cursor (May frog edition) ── */
+/* ── Custom Cursor (sun edition) ── */
 .custom-cursor {
   position: fixed;
   top: 0;
   left: 0;
   width: 32px;
   height: 32px;
-  border: 1.5px solid rgba(90, 138, 94, 0.7);
+  border: 1.5px solid rgba(255, 160, 50, 0.7);
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
   will-change: transform;
   transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 8px 2px rgba(90, 138, 94, 0.25), 0 0 0 1px rgba(255,255,255,0.5);
+  box-shadow: 0 0 8px 2px rgba(255, 140, 40, 0.25), 0 0 0 1px rgba(255,255,255,0.5);
   opacity: 0;
 }
 
 .custom-cursor.expanded {
   width: 56px;
   height: 56px;
-  border-color: rgba(90, 138, 94, 0.6);
-  box-shadow: 0 0 16px 4px rgba(90, 138, 94, 0.3), 0 0 0 1px rgba(255,255,255,0.5);
+  border-color: rgba(255, 160, 50, 0.6);
+  box-shadow: 0 0 16px 4px rgba(255, 140, 40, 0.3), 0 0 0 1px rgba(255,255,255,0.5);
 }
 
 .custom-cursor-dot {
@@ -420,14 +420,14 @@ body {
   left: 0;
   width: 6px;
   height: 6px;
-  background: #5a8a5e;
+  background: #e8943a;
   border-radius: 50%;
   pointer-events: none;
   z-index: 10001;
   will-change: transform;
   transition: opacity 0.3s ease;
   opacity: 0;
-  box-shadow: 0 0 6px 2px rgba(90, 138, 94, 0.4);
+  box-shadow: 0 0 6px 2px rgba(255, 140, 40, 0.4);
 }
 
 /* ── Petal Canvas ── */
@@ -1246,111 +1246,129 @@ body {
   color: var(--grey-dark);
 }
 
-/* ── May Seasonal Tag ── */
-.may-tag {
-  position: fixed;
-  bottom: 16px;
-  left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  z-index: 100;
-}
 
-.may-frog-wrapper {
-  position: relative;
-}
-
-.may-frog-ascii {
-  font-family: var(--font-mono);
-  font-size: 0.45rem;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
-  color: var(--grey-light);
-  white-space: pre;
-  transition: color 0.5s ease, text-shadow 0.5s ease, filter 0.5s ease;
-  display: block;
-}
-
-.may-frog-wrapper:hover .may-frog-ascii {
-  color: #5a8a5e;
-  text-shadow: 0 0 6px rgba(90, 138, 94, 0.5), 0 0 18px rgba(90, 138, 94, 0.25);
-  filter: drop-shadow(0 0 4px rgba(90, 138, 94, 0.3));
-}
-
-.may-label-row {
+/* ── Cosmic Transmit ── */
+.quote-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 600px;
+}
+
+.cosmic-quote {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-  color: var(--grey-light);
-  transition: color 0.4s ease;
-}
-
-.may-frog-wrapper:hover ~ .may-label-row,
-.may-label-row:hover {
-  color: var(--grey-dark);
-}
-
-.may-frog-icon {
-  font-size: 0.65rem;
-  opacity: 0.5;
-  animation: frogBreathe 4s ease-in-out infinite;
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--grey);
+  font-style: italic;
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.6;
+  opacity: 0.65;
+  margin: 0;
   transition: opacity 0.4s ease;
 }
 
-.may-frog-wrapper:hover ~ .may-label-row .may-frog-icon {
+.cosmic-quote:hover {
   opacity: 0.9;
 }
 
-.may-label {
-  font-weight: 400;
+.cosmic-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0 !important;
+  padding: 8px 16px;
+  height: auto;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
 }
 
-/* Message box that appears on frog hover */
-.frog-message-box {
+/* allow the tooltip (positioned above the button) to escape the
+   magnetic-btn's overflow:hidden clip — higher specificity so it
+   wins regardless of compiled rule order */
+.magnetic-btn.cosmic-btn {
+  overflow: visible;
+}
+
+/* Clicked state — turns accent green */
+.cosmic-btn.cosmic-btn-done {
+  opacity: 1;
+  pointer-events: none;
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(90, 138, 94, 0.06);
+}
+
+.cosmic-btn.cosmic-btn-done:hover {
+  color: var(--accent);
+}
+
+.cosmic-btn.cosmic-btn-done::before {
+  display: none;
+}
+
+/* Label — keeps spinner + text aligned */
+.cosmic-btn-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Transmitting / loading state */
+@keyframes cosmicPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.cosmic-btn.cosmic-btn-transmitting {
+  pointer-events: none;
+  border-color: var(--accent);
+  color: var(--accent);
+  animation: cosmicPulse 1.1s ease-in-out infinite;
+}
+
+.cosmic-btn.cosmic-btn-transmitting::before {
+  display: none;
+}
+
+.cosmic-btn .cosmic-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
   background: var(--fg);
   color: var(--bg);
   font-family: var(--font-mono);
   font-size: 0.5rem;
   font-weight: 400;
   letter-spacing: 0.04em;
-  font-style: italic;
+  text-transform: lowercase;
   padding: 10px 14px;
   white-space: nowrap;
   opacity: 0;
-  transform: translateY(6px);
   pointer-events: none;
-  transition: opacity 0.4s ease 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 101;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.frog-message-box::after {
+.cosmic-btn .cosmic-tooltip::after {
   content: '';
   position: absolute;
   top: 100%;
-  left: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   border: 5px solid transparent;
   border-top-color: var(--fg);
 }
 
-.may-frog-wrapper:hover .frog-message-box {
+.cosmic-btn:hover .cosmic-tooltip {
   opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-@keyframes frogBreathe {
-  0%, 100% { opacity: 0.35; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ── Pond Ripple Background ── */

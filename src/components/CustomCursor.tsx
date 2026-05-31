@@ -2,13 +2,12 @@
 
 import { useEffect, useRef } from "react";
 
-const MAX_FROGS = 20;
-const HOVER_SPAWN_INTERVAL = 300;  // ms between timer-based spawns on hover
-const MOVE_SPAWN_DIST = 45;        // px of movement before spawning a frog
-const DRAG_SPAWN_DIST = 22;        // px during drag (more frogs)
-const FROG_LIFETIME = 200;
+const MAX_PARTICLES = 24;
+const MOVE_SPAWN_DIST = 50;
+const DRAG_SPAWN_DIST = 25;
+const PARTICLE_LIFETIME = 160;
 
-interface Frog {
+interface SunParticle {
   x: number;
   y: number;
   vx: number;
@@ -18,65 +17,52 @@ interface Frog {
   size: number;
   rotation: number;
   rotSpeed: number;
+  rays: number;
 }
 
-function drawMiniFrog(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, alpha: number, rotation: number) {
+function drawMiniSun(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  alpha: number,
+  rotation: number,
+  rays: number
+) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
   ctx.globalAlpha = alpha;
 
-  const s = size;
+  const r = size * 0.3;
 
-  // body
+  // outer glow
+  const glow = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, size * 0.7);
+  glow.addColorStop(0, `rgba(255, 160, 50, ${alpha * 0.4})`);
+  glow.addColorStop(1, `rgba(255, 120, 20, 0)`);
   ctx.beginPath();
-  ctx.ellipse(0, 0, s * 0.5, s * 0.4, 0, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(90, 138, 94, ${alpha * 0.7})`;
+  ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
+  ctx.fillStyle = glow;
   ctx.fill();
 
-  // head
+  // core
   ctx.beginPath();
-  ctx.ellipse(0, -s * 0.35, s * 0.35, s * 0.28, 0, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(100, 158, 104, ${alpha * 0.8})`;
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(255, 170, 60, ${alpha * 0.9})`;
   ctx.fill();
 
-  // eyes
-  const eyeOffX = s * 0.16;
-  const eyeY = -s * 0.45;
-  const eyeR = s * 0.09;
-  ctx.beginPath();
-  ctx.arc(-eyeOffX, eyeY, eyeR, 0, Math.PI * 2);
-  ctx.arc(eyeOffX, eyeY, eyeR, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
-  ctx.fill();
-
-  // pupils
-  const pupilR = s * 0.045;
-  ctx.beginPath();
-  ctx.arc(-eyeOffX, eyeY, pupilR, 0, Math.PI * 2);
-  ctx.arc(eyeOffX, eyeY, pupilR, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(20, 20, 20, ${alpha * 0.9})`;
-  ctx.fill();
-
-  // front legs
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.4, s * 0.1);
-  ctx.quadraticCurveTo(-s * 0.65, s * 0.35, -s * 0.45, s * 0.4);
-  ctx.moveTo(s * 0.4, s * 0.1);
-  ctx.quadraticCurveTo(s * 0.65, s * 0.35, s * 0.45, s * 0.4);
-  ctx.strokeStyle = `rgba(80, 128, 84, ${alpha * 0.6})`;
-  ctx.lineWidth = s * 0.06;
-  ctx.stroke();
-
-  // back legs
-  ctx.beginPath();
-  ctx.moveTo(-s * 0.3, s * 0.25);
-  ctx.quadraticCurveTo(-s * 0.7, s * 0.5, -s * 0.5, s * 0.55);
-  ctx.moveTo(s * 0.3, s * 0.25);
-  ctx.quadraticCurveTo(s * 0.7, s * 0.5, s * 0.5, s * 0.55);
-  ctx.strokeStyle = `rgba(80, 128, 84, ${alpha * 0.5})`;
-  ctx.lineWidth = s * 0.05;
-  ctx.stroke();
+  // rays
+  const rayLen = size * 0.35;
+  ctx.strokeStyle = `rgba(255, 140, 40, ${alpha * 0.5})`;
+  ctx.lineWidth = size * 0.06;
+  for (let i = 0; i < rays; i++) {
+    const angle = (i / rays) * Math.PI * 2;
+    const inner = r + size * 0.08;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+    ctx.lineTo(Math.cos(angle) * (inner + rayLen), Math.sin(angle) * (inner + rayLen));
+    ctx.stroke();
+  }
 
   ctx.globalAlpha = 1;
   ctx.restore();
@@ -122,28 +108,27 @@ export default function CustomCursor() {
     let cursorX = 0;
     let cursorY = 0;
     let hasMouseMoved = false;
-    let isHovering = false;
     let isMouseDown = false;
-    const frogs: Frog[] = [];
+    const particles: SunParticle[] = [];
     let rafId = 0;
-    let lastSpawnTime = 0;
     let lastSpawnX = 0;
     let lastSpawnY = 0;
 
-    const spawnFrog = (x: number, y: number) => {
-      if (frogs.length >= MAX_FROGS) frogs.shift();
+    const spawnParticle = (x: number, y: number) => {
+      if (particles.length >= MAX_PARTICLES) particles.shift();
       const angle = Math.random() * Math.PI * 2;
-      const speed = 0.3 + Math.random() * 0.5;
-      frogs.push({
+      const speed = 0.2 + Math.random() * 0.4;
+      particles.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 0.4,
+        vy: Math.sin(angle) * speed - 0.3,
         life: 1,
-        maxLife: FROG_LIFETIME,
-        size: 8 + Math.random() * 6,
-        rotation: (Math.random() - 0.5) * 0.4,
-        rotSpeed: (Math.random() - 0.5) * 0.005,
+        maxLife: PARTICLE_LIFETIME,
+        size: 6 + Math.random() * 5,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.01,
+        rays: 5 + Math.floor(Math.random() * 4),
       });
     };
 
@@ -164,13 +149,12 @@ export default function CustomCursor() {
 
       dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
 
-      // Movement-based spawning — frogs on all movement
       const dx = mouseX - lastSpawnX;
       const dy = mouseY - lastSpawnY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const threshold = isMouseDown ? DRAG_SPAWN_DIST : MOVE_SPAWN_DIST;
       if (dist > threshold) {
-        spawnFrog(mouseX, mouseY);
+        spawnParticle(mouseX, mouseY);
         lastSpawnX = mouseX;
         lastSpawnY = mouseY;
       }
@@ -184,57 +168,54 @@ export default function CustomCursor() {
       cursorY += (mouseY - cursorY) * 0.07;
       cursor.style.transform = `translate(${cursorX - 16}px, ${cursorY - 16}px)`;
 
-      // Timer-based spawning while cursor is active
-      if (hasMouseMoved && time - lastSpawnTime > HOVER_SPAWN_INTERVAL) {
-        spawnFrog(mouseX, mouseY);
-        lastSpawnTime = time;
-      }
-
       ctx.clearRect(0, 0, w, h);
 
       if (hasMouseMoved) {
-        const breathe = 0.5 + 0.5 * Math.sin(time * 0.001);
+        const breathe = 0.5 + 0.5 * Math.sin(time * 0.002);
+        const vibrate = Math.sin(time * 0.015) * 1.5;
 
-        // Outer pond glow — soft green ambient
-        const haloRadius = 45 + breathe * 25;
-        const haloAlpha = 0.025 + breathe * 0.025;
-        const haloGrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, haloRadius);
-        haloGrad.addColorStop(0, `rgba(90, 138, 94, ${haloAlpha})`);
-        haloGrad.addColorStop(0.5, `rgba(90, 138, 94, ${haloAlpha * 0.4})`);
-        haloGrad.addColorStop(1, `rgba(90, 138, 94, 0)`);
+        const cx = mouseX + vibrate;
+        const cy = mouseY + vibrate * 0.7;
+
+        // warm ambient glow
+        const haloRadius = 40 + breathe * 20;
+        const haloAlpha = 0.03 + breathe * 0.025;
+        const haloGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, haloRadius);
+        haloGrad.addColorStop(0, `rgba(255, 160, 50, ${haloAlpha})`);
+        haloGrad.addColorStop(0.5, `rgba(255, 120, 30, ${haloAlpha * 0.4})`);
+        haloGrad.addColorStop(1, `rgba(255, 100, 20, 0)`);
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, haloRadius, 0, Math.PI * 2);
+        ctx.arc(cx, cy, haloRadius, 0, Math.PI * 2);
         ctx.fillStyle = haloGrad;
         ctx.fill();
 
-        // Inner core glow
-        const coreRadius = 10 + breathe * 5;
-        const coreAlpha = 0.1 + breathe * 0.06;
-        const coreGrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, coreRadius);
-        coreGrad.addColorStop(0, `rgba(120, 180, 120, ${coreAlpha})`);
-        coreGrad.addColorStop(1, `rgba(90, 138, 94, 0)`);
+        // inner core
+        const coreRadius = 8 + breathe * 4;
+        const coreAlpha = 0.12 + breathe * 0.06;
+        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+        coreGrad.addColorStop(0, `rgba(255, 180, 80, ${coreAlpha})`);
+        coreGrad.addColorStop(1, `rgba(255, 140, 40, 0)`);
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, coreRadius, 0, Math.PI * 2);
+        ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
         ctx.fillStyle = coreGrad;
         ctx.fill();
       }
 
-      // Draw frogs
-      for (let i = frogs.length - 1; i >= 0; i--) {
-        const f = frogs[i];
-        f.life -= 1 / f.maxLife;
-        f.x += f.vx;
-        f.y += f.vy;
-        f.vy += 0.008;
-        f.rotation += f.rotSpeed;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life -= 1 / p.maxLife;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.006;
+        p.rotation += p.rotSpeed;
 
-        if (f.life <= 0) {
-          frogs.splice(i, 1);
+        if (p.life <= 0) {
+          particles.splice(i, 1);
           continue;
         }
 
-        const alpha = Math.min(f.life * 2, 1) * 0.6;
-        drawMiniFrog(ctx, f.x, f.y, f.size, alpha, f.rotation);
+        const alpha = Math.min(p.life * 2, 1) * 0.5;
+        drawMiniSun(ctx, p.x, p.y, p.size, alpha, p.rotation, p.rays);
       }
 
       rafId = requestAnimationFrame(tick);
@@ -254,18 +235,15 @@ export default function CustomCursor() {
       ) {
         cursor.classList.add("expanded");
         dot.style.opacity = "0";
-        isHovering = true;
       } else {
         cursor.classList.remove("expanded");
         dot.style.opacity = "1";
-        isHovering = false;
       }
     };
 
     const onMouseLeave = () => {
       cursor.style.opacity = "0";
       dot.style.opacity = "0";
-      isHovering = false;
     };
 
     const onMouseEnter = () => {
