@@ -402,8 +402,8 @@ export default function Home() {
             </h1>
             <div className="animate-fade-up delay-2 quote-row">
               <p className="cosmic-quote">
-                &ldquo;marine creatures shall transmit 3 times a minute but a
-                human shall transmit only once&rdquo;
+                &ldquo;The divine hermit's blessing and prayers are always
+                there&rdquo;
               </p>
               <CosmicTransmit />
             </div>
