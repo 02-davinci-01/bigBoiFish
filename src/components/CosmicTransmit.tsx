@@ -3,7 +3,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
 async function sha256(data: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(data));
+  const buf = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(data),
+  );
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
@@ -46,18 +49,28 @@ async function getCanvasFingerprint(): Promise<string | undefined> {
 function getWebGLInfo() {
   try {
     const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const gl =
+      canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     if (!gl || !(gl instanceof WebGLRenderingContext)) return undefined;
 
     const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-    const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : undefined;
+    const renderer = dbg
+      ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+      : undefined;
     const vendor = dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : undefined;
     const version = gl.getParameter(gl.VERSION);
     const shadingLang = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
     const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     const extensions = gl.getSupportedExtensions()?.length;
 
-    return { renderer, vendor, version, shadingLang, maxTextureSize, extensions };
+    return {
+      renderer,
+      vendor,
+      version,
+      shadingLang,
+      maxTextureSize,
+      extensions,
+    };
   } catch {
     return undefined;
   }
@@ -82,7 +95,9 @@ async function getAudioFingerprint(): Promise<string | undefined> {
 
     const rendered = await ctx.startRendering();
     const samples = rendered.getChannelData(0).slice(4500, 5000);
-    const str = Array.from(samples).map((v) => v.toFixed(6)).join(",");
+    const str = Array.from(samples)
+      .map((v) => v.toFixed(6))
+      .join(",");
     return await sha256(str);
   } catch {
     return undefined;
@@ -93,12 +108,14 @@ async function getBatteryInfo() {
   try {
     const nav = navigator as unknown as Record<string, unknown>;
     if (typeof nav.getBattery !== "function") return undefined;
-    const battery = await (nav.getBattery as () => Promise<{
-      level: number;
-      charging: boolean;
-      chargingTime: number;
-      dischargingTime: number;
-    }>)();
+    const battery = await (
+      nav.getBattery as () => Promise<{
+        level: number;
+        charging: boolean;
+        chargingTime: number;
+        dischargingTime: number;
+      }>
+    )();
     return {
       level: Math.round(battery.level * 100),
       charging: battery.charging,
@@ -135,7 +152,9 @@ function getMediaCapabilities() {
     checks.midi = "requestMIDIAccess" in navigator;
     checks.gamepad = "getGamepads" in navigator;
     checks.speechSynthesis = "speechSynthesis" in window;
-    checks.speechRecognition = !!(w.SpeechRecognition || w.webkitSpeechRecognition);
+    checks.speechRecognition = !!(
+      w.SpeechRecognition || w.webkitSpeechRecognition
+    );
   } catch {}
   return checks;
 }
@@ -143,15 +162,45 @@ function getMediaCapabilities() {
 function detectFonts(): string[] {
   const baseFonts = ["monospace", "sans-serif", "serif"] as const;
   const testFonts = [
-    "Arial", "Arial Black", "Comic Sans MS", "Courier New", "Georgia",
-    "Helvetica", "Impact", "Lucida Console", "Lucida Sans Unicode",
-    "Palatino Linotype", "Tahoma", "Times New Roman", "Trebuchet MS",
-    "Verdana", "MS Gothic", "MS PGothic", "MS UI Gothic", "Meiryo",
-    "Yu Gothic", "Malgun Gothic", "Segoe UI", "Roboto", "Ubuntu",
-    "Cantarell", "Noto Sans", "Fira Sans", "SF Pro", "Menlo",
-    "Consolas", "Cascadia Code", "JetBrains Mono", "Papyrus",
-    "Brush Script MT", "Garamond", "Century Gothic", "Futura",
-    "Copperplate", "Rockwell", "Franklin Gothic",
+    "Arial",
+    "Arial Black",
+    "Comic Sans MS",
+    "Courier New",
+    "Georgia",
+    "Helvetica",
+    "Impact",
+    "Lucida Console",
+    "Lucida Sans Unicode",
+    "Palatino Linotype",
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
+    "MS Gothic",
+    "MS PGothic",
+    "MS UI Gothic",
+    "Meiryo",
+    "Yu Gothic",
+    "Malgun Gothic",
+    "Segoe UI",
+    "Roboto",
+    "Ubuntu",
+    "Cantarell",
+    "Noto Sans",
+    "Fira Sans",
+    "SF Pro",
+    "Menlo",
+    "Consolas",
+    "Cascadia Code",
+    "JetBrains Mono",
+    "Papyrus",
+    "Brush Script MT",
+    "Garamond",
+    "Century Gothic",
+    "Futura",
+    "Copperplate",
+    "Rockwell",
+    "Franklin Gothic",
   ];
   const detected: string[] = [];
   try {
@@ -187,13 +236,19 @@ function detectFonts(): string[] {
 
 function getNavigationType(): string {
   try {
-    const entries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+    const entries = performance.getEntriesByType(
+      "navigation",
+    ) as PerformanceNavigationTiming[];
     if (entries.length > 0) return entries[0].type;
   } catch {}
   return "unknown";
 }
 
-export default function CosmicTransmit() {
+export default function CosmicTransmit({
+  onTransmit,
+}: {
+  onTransmit?: () => void;
+}) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -223,8 +278,15 @@ export default function CosmicTransmit() {
     setSent(false);
     try {
       const nav = navigator as unknown as Record<string, unknown>;
-      const conn = (nav.connection ?? nav.mozConnection ?? nav.webkitConnection) as
-        | { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean }
+      const conn = (nav.connection ??
+        nav.mozConnection ??
+        nav.webkitConnection) as
+        | {
+            effectiveType?: string;
+            downlink?: number;
+            rtt?: number;
+            saveData?: boolean;
+          }
         | undefined;
 
       const timeOnPage = Math.round((Date.now() - pageLoadTime.current) / 1000);
@@ -278,7 +340,8 @@ export default function CosmicTransmit() {
         pdfViewerEnabled: nav.pdfViewerEnabled as boolean | undefined,
 
         darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
-        reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches,
         highContrast: window.matchMedia("(prefers-contrast: high)").matches,
 
         historyLength: window.history.length,
@@ -306,6 +369,7 @@ export default function CosmicTransmit() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      onTransmit?.();
     } catch {
       // silent fail
     }
