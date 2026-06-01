@@ -268,7 +268,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "A prayer rendered everyday on canvas till lord settles the storm. 2 steps in cosmos for if this a safe haven, 3 steps back if this very canvas corrupted";
+  "The divine hermit's blessing and prayers are always there";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
