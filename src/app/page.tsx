@@ -64,42 +64,54 @@ function SwimText() {
 
   const maxLen = Math.max(WORD_DEFAULT.length, WORD_HOVER.length);
 
-  const scrambleTo = useCallback((target: string) => {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
+  const scrambleTo = useCallback(
+    (target: string) => {
+      timeoutsRef.current.forEach(clearTimeout);
+      timeoutsRef.current = [];
 
-    const padded = target.padEnd(maxLen, " ");
+      const padded = target.padEnd(maxLen, " ");
 
-    // Immediately expand display to max length
-    setDisplay((prev) => {
-      const next = [...prev];
-      while (next.length < maxLen) next.push(" ");
-      return next;
-    });
+      // Immediately expand display to max length
+      setDisplay((prev) => {
+        const next = [...prev];
+        while (next.length < maxLen) next.push(" ");
+        return next;
+      });
 
-    for (let i = 0; i < maxLen; i++) {
-      const tickCount = 3 + Math.floor(Math.random() * 5);
-      for (let t = 0; t < tickCount; t++) {
-        const timeout = setTimeout(() => {
-          setDisplay((prev) => {
-            const next = [...prev];
-            next[i] = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-            return next;
-          });
-        }, t * 50 + i * 70);
-        timeoutsRef.current.push(timeout);
+      for (let i = 0; i < maxLen; i++) {
+        const tickCount = 3 + Math.floor(Math.random() * 5);
+        for (let t = 0; t < tickCount; t++) {
+          const timeout = setTimeout(
+            () => {
+              setDisplay((prev) => {
+                const next = [...prev];
+                next[i] =
+                  SCRAMBLE_CHARS[
+                    Math.floor(Math.random() * SCRAMBLE_CHARS.length)
+                  ];
+                return next;
+              });
+            },
+            t * 50 + i * 70,
+          );
+          timeoutsRef.current.push(timeout);
+        }
+        // Settle to target char
+        const settleTimeout = setTimeout(
+          () => {
+            setDisplay((prev) => {
+              const next = [...prev];
+              next[i] = padded[i];
+              return next;
+            });
+          },
+          tickCount * 50 + i * 70,
+        );
+        timeoutsRef.current.push(settleTimeout);
       }
-      // Settle to target char
-      const settleTimeout = setTimeout(() => {
-        setDisplay((prev) => {
-          const next = [...prev];
-          next[i] = padded[i];
-          return next;
-        });
-      }, tickCount * 50 + i * 70);
-      timeoutsRef.current.push(settleTimeout);
-    }
-  }, [maxLen]);
+    },
+    [maxLen],
+  );
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
@@ -118,7 +130,7 @@ function SwimText() {
   }, []);
 
   // Only render actual visible characters — no spacer spans
-  const visibleChars = display.filter(c => c !== " ");
+  const visibleChars = display.filter((c) => c !== " ");
   const targetWord = isHovered ? WORD_HOVER : WORD_DEFAULT;
 
   return (
@@ -169,9 +181,7 @@ function SlotLetter({
           if (intervalRef.current) clearInterval(intervalRef.current);
           onSettled?.();
         } else {
-          setDisplay(
-            SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]
-          );
+          setDisplay(SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]);
         }
       }, 60);
     }, delay);
@@ -187,7 +197,9 @@ function SlotLetter({
   }
 
   return (
-    <span className={`slot-letter ${settled ? "slot-settled" : "slot-rolling"}`}>
+    <span
+      className={`slot-letter ${settled ? "slot-settled" : "slot-rolling"}`}
+    >
       {display}
     </span>
   );
@@ -196,9 +208,11 @@ function SlotLetter({
 /* ── Page Loader — Standard Rolodex ── */
 function PageLoader() {
   const TITLE = "B I G   B O I   F I S H";
-  const [phase, setPhase] = useState<'rolodex' | 'light' | 'fadeOut'>('rolodex');
+  const [phase, setPhase] = useState<"rolodex" | "light" | "fadeOut">(
+    "rolodex",
+  );
   const [settledCount, setSettledCount] = useState(0);
-  const totalLetters = TITLE.replace(/ /g, '').length;
+  const totalLetters = TITLE.replace(/ /g, "").length;
 
   const onLetterSettled = useCallback(() => {
     setSettledCount((c) => c + 1);
@@ -206,25 +220,27 @@ function PageLoader() {
 
   // All letters settled → lighten background
   useEffect(() => {
-    if (phase !== 'rolodex') return;
+    if (phase !== "rolodex") return;
     if (settledCount >= totalLetters) {
-      const t = setTimeout(() => setPhase('light'), 400);
+      const t = setTimeout(() => setPhase("light"), 400);
       return () => clearTimeout(t);
     }
   }, [phase, settledCount, totalLetters]);
 
   // Light phase → fade out
   useEffect(() => {
-    if (phase !== 'light') return;
-    const t = setTimeout(() => setPhase('fadeOut'), 800);
+    if (phase !== "light") return;
+    const t = setTimeout(() => setPhase("fadeOut"), 800);
     return () => clearTimeout(t);
   }, [phase]);
 
   const loaderClass = [
-    'page-loader',
-    phase === 'light' ? 'loader-light' : '',
-    phase === 'fadeOut' ? 'loader-exit' : '',
-  ].filter(Boolean).join(' ');
+    "page-loader",
+    phase === "light" ? "loader-light" : "",
+    phase === "fadeOut" ? "loader-exit" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className={loaderClass}>
@@ -235,7 +251,7 @@ function PageLoader() {
               key={i}
               target={ch}
               delay={120 + i * 70}
-              onSettled={ch !== ' ' ? onLetterSettled : undefined}
+              onSettled={ch !== " " ? onLetterSettled : undefined}
             />
           ))}
         </div>
@@ -247,7 +263,8 @@ function PageLoader() {
 const HERO_IMAGE = {
   src: "/images/image.png",
   title: "Liber Eremitae",
-  description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
+  description:
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
 };
 
 export default function Home() {
@@ -262,10 +279,14 @@ export default function Home() {
   const [daysCompleted, setDaysCompleted] = useState(0);
   const [daysLeft, setDaysLeft] = useState(0);
   useEffect(() => {
-    const start = new Date('2026-01-30').getTime();
-    const end = new Date('2026-06-30').getTime();
+    const start = new Date("2026-01-30").getTime();
+    const end = new Date("2026-06-30").getTime();
     const now = Date.now();
-    setProgressPercent(Math.round(Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100)) * 100) / 100);
+    setProgressPercent(
+      Math.round(
+        Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100)) * 100,
+      ) / 100,
+    );
     const msPerDay = 86400000;
     setDaysCompleted(Math.max(0, Math.floor((now - start) / msPerDay)));
     setDaysLeft(Math.max(0, Math.ceil((end - now) / msPerDay)));
@@ -318,40 +339,49 @@ export default function Home() {
           aria-hidden="true"
         />
         {/* Pond ripple rings */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div style={{
-            position: 'absolute',
-            top: '30%',
-            left: '50%',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            border: '1px solid rgba(90, 138, 94, 0.06)',
-            transform: 'translate(-50%, -50%)',
-            animation: 'pondRipple 5s ease-out infinite',
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: '30%',
-            left: '50%',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            border: '1px solid rgba(90, 138, 94, 0.06)',
-            transform: 'translate(-50%, -50%)',
-            animation: 'pondRipple 5s ease-out 1.6s infinite',
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: '30%',
-            left: '50%',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            border: '1px solid rgba(90, 138, 94, 0.06)',
-            transform: 'translate(-50%, -50%)',
-            animation: 'pondRipple 5s ease-out 3.2s infinite',
-          }} />
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          aria-hidden="true"
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              width: "300px",
+              height: "300px",
+              borderRadius: "50%",
+              border: "1px solid rgba(90, 138, 94, 0.06)",
+              transform: "translate(-50%, -50%)",
+              animation: "pondRipple 5s ease-out infinite",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              width: "300px",
+              height: "300px",
+              borderRadius: "50%",
+              border: "1px solid rgba(90, 138, 94, 0.06)",
+              transform: "translate(-50%, -50%)",
+              animation: "pondRipple 5s ease-out 1.6s infinite",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              width: "300px",
+              height: "300px",
+              borderRadius: "50%",
+              border: "1px solid rgba(90, 138, 94, 0.06)",
+              transform: "translate(-50%, -50%)",
+              animation: "pondRipple 5s ease-out 3.2s infinite",
+            }}
+          />
         </div>
 
         {/* Content */}
@@ -372,7 +402,8 @@ export default function Home() {
             </h1>
             <div className="animate-fade-up delay-2 quote-row">
               <p className="cosmic-quote">
-                &ldquo;The divine hermit&apos;s blessing and prayers are always there&rdquo;
+                &ldquo;marine creatures shall transmit 3 times a minute but a
+                human shall transmit only once&rdquo;
               </p>
               <CosmicTransmit />
             </div>
@@ -380,19 +411,30 @@ export default function Home() {
           </div>
 
           {/* Image with progress bar cutting through */}
-          <div className="animate-fade-up delay-3 image-container" style={{ position: 'relative', width: '100%', maxWidth: 600, marginBottom: 24 }}>
+          <div
+            className="animate-fade-up delay-3 image-container"
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 600,
+              marginBottom: 24,
+            }}
+          >
             <button onClick={openModal} className="image-clickable">
               {/* Image behind */}
-              <div className="image-accent image-anim" style={{ animationDelay: '2.5s' }}>
+              <div
+                className="image-accent image-anim"
+                style={{ animationDelay: "2.5s" }}
+              >
                 <img
                   src={HERO_IMAGE.src}
                   alt={HERO_IMAGE.title}
                   style={{
-                    width: '100%',
+                    width: "100%",
                     height: 120,
-                    objectFit: 'cover',
-                    filter: 'grayscale(100%) contrast(0.8) brightness(1.15)',
-                    display: 'block',
+                    objectFit: "cover",
+                    filter: "grayscale(100%) contrast(0.8) brightness(1.15)",
+                    display: "block",
                   }}
                 />
               </div>
@@ -408,8 +450,13 @@ export default function Home() {
                 onMouseMove={handleProgressMouseMove}
                 onMouseLeave={handleProgressMouseLeave}
               >
-                <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-                <span className="progress-label">{Math.round(100 - progressPercent)}% left</span>
+                <div
+                  className="progress-fill"
+                  style={{ width: `${progressPercent}%` }}
+                />
+                <span className="progress-label">
+                  {Math.round(100 - progressPercent)}% left
+                </span>
               </div>
             </div>
           </div>
@@ -421,7 +468,7 @@ export default function Home() {
               left: tooltipPos.x,
               top: tooltipPos.y,
               opacity: progressHover ? 1 : 0,
-              pointerEvents: 'none',
+              pointerEvents: "none",
             }}
           >
             <div className="progress-tooltip-row">
@@ -440,7 +487,10 @@ export default function Home() {
           </div>
 
           {/* File Selector */}
-          <div className="animate-fade-up delay-4 w-full" style={{ maxWidth: 600 }}>
+          <div
+            className="animate-fade-up delay-4 w-full"
+            style={{ maxWidth: 600 }}
+          >
             <div className="flex flex-col sm:flex-row items-stretch gap-3">
               <div style={{ flex: 1, minWidth: 0 }}>
                 <FileSelector
@@ -449,21 +499,27 @@ export default function Home() {
                   onSelectionChange={handleSelectionChange}
                 />
               </div>
-              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}>
+              <div
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "flex-start",
+                }}
+              >
                 <DownloadButton files={PROMPT_FILES} selectedIds={selected} />
               </div>
             </div>
           </div>
         </div>
-
       </div>
-
 
       {/* Footer — fixed to viewport bottom */}
       <div className="site-footer">
         <span className="footer-text">rendered to reality by&nbsp;</span>
         <span className="footer-text footer-author">divine froggie</span>
-        <span className="footer-face">&nbsp;&#x0CA0;&#x256D;&#x256E;&#x0CA0;</span>
+        <span className="footer-face">
+          &nbsp;&#x0CA0;&#x256D;&#x256E;&#x0CA0;
+        </span>
       </div>
 
       <Toast
