@@ -268,7 +268,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "cosmic law of hermit's universe: 2 beeps to the cosmos means tutum, 3 beeps to the cosmos means periculum";
+  "A prayer rendered everyday on canvas till lord settles the storm. 2 steps in cosmos for if this a safe haven, 3 steps back if this very canvas corrupted";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
