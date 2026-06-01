@@ -58,7 +58,13 @@ export default function CosmicTransmit() {
               strokeWidth="2"
               className="animate-spin"
             >
-              <circle cx="12" cy="12" r="10" strokeDasharray="31.42" strokeDashoffset="10" />
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                strokeDasharray="31.42"
+                strokeDashoffset="10"
+              />
             </svg>
             lightspeed
           </>
@@ -70,7 +76,7 @@ export default function CosmicTransmit() {
       </span>
       {!active && (
         <span className="cosmic-tooltip">
-          transmit good deeds to the cosmos — it alters miraculously every 24 hours
+          transmit good deeds to the cosmos — it alters with every transmission
         </span>
       )}
     </button>
