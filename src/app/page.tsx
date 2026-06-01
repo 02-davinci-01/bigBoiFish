@@ -267,9 +267,8 @@ const HERO_IMAGE = {
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
 };
 
-const QUOTE_A = "The divine hermit's blessing and prayers are always there";
-const QUOTE_B =
-  "marine creatures shall transmit 3 times a minute but a human shall transmit only once";
+const COSMIC_QUOTE =
+  "cosmic law of hermit's universe: 2 beeps to the cosmos means tutum, 3 beeps to the cosmos means periculum";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -277,7 +276,6 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [progressHover, setProgressHover] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const [flip, setFlip] = useState(false);
 
   // Progress bar: Jan 30, 2026 → Jun 30, 2026
   const [progressPercent, setProgressPercent] = useState(0);
@@ -315,10 +313,6 @@ export default function Home() {
 
   const handleProgressMouseLeave = useCallback(() => {
     setProgressHover(false);
-  }, []);
-
-  const handleTransmit = useCallback(() => {
-    setFlip((prev) => !prev);
   }, []);
 
   return (
@@ -410,10 +404,8 @@ export default function Home() {
               BIG BOI FISH
             </h1>
             <div className="animate-fade-up delay-2 quote-row">
-              <p className="cosmic-quote">
-                &ldquo;{flip ? QUOTE_B : QUOTE_A}&rdquo;
-              </p>
-              <CosmicTransmit onTransmit={handleTransmit} />
+              <p className="cosmic-quote">&ldquo;{COSMIC_QUOTE}&rdquo;</p>
+              <CosmicTransmit />
             </div>
             <SwimText />
           </div>
