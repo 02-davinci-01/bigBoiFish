@@ -249,7 +249,7 @@ async function sendNotification(req: Request) {
     if (missing.length) lines.push(`✗ ${missing.join(", ")}`);
   }
 
-  const title = `👁 ${loc} | ${deviceType} | ${browser.split(" ")[0]}`;
+  const title = `${loc} | ${deviceType} | ${browser.split(" ")[0]}`;
 
   await fetch(`https://ntfy.sh/${topic}`, {
     method: "POST",
