@@ -268,7 +268,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "The divine hermit's blessing and prayers are always there";
+  "Cosmic law of hermit's universe: creatures beep 2 for true & tutum, beep 3 for periculum & lies. For God renders at 2 beep";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
