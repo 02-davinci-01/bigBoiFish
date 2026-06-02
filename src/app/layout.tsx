@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import VisitorLog from "@/components/VisitorLog";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -35,6 +36,7 @@ export default function RootLayout({
       </head>
       <body className={`${spaceGrotesk.variable} antialiased`}>
         {children}
+        <VisitorLog />
         <Analytics />
       </body>
     </html>
