@@ -268,7 +268,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "The divine hermit's blessing and prayers are always there";
+  "Cosmic Law of hermit's universe: oora beeps times 4 while angels beep times 1 for that's how their soul is known";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
