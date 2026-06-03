@@ -81,7 +81,7 @@ function yn(val: unknown): string {
 
 export async function POST(req: Request) {
   await redis.incr("visit:total");
-  // await sendNotification(req);
+  await sendNotification(req);
   return NextResponse.json({ ok: true });
 }
 

@@ -75,7 +75,7 @@ async function getGeoData(ip: string): Promise<GeoData | null> {
 
 export async function POST(req: Request) {
   await redis.incr("wave:total");
-  // await sendNotification(req);
+  await sendNotification(req);
   return NextResponse.json({ ok: true });
 }
 
