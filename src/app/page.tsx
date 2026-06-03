@@ -269,7 +269,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "Cosmic Law of hermit's universe: oora beeps times 4 while angels beep times 1 for that's how their soul is known";
+  "Comic Law 2 of hermit's universe: the bubbles are a safe haven, the fleeing man is a sign of danger. Divine creatures decide the nature of this land. which will it be?";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
