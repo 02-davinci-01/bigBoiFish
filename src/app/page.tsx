@@ -9,7 +9,7 @@ import Toast from "@/components/Toast";
 import WeatherWidget from "@/components/WeatherWidget";
 import ScrollingMessage from "@/components/ScrollingMessage";
 import ImageModal from "@/components/ImageModal";
-import CosmicTransmit from "@/components/CosmicTransmit";
+
 import HermitOracle from "@/components/HermitOracle";
 
 const PROMPT_FILES: PromptFile[] = [
@@ -269,7 +269,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "Hermit's trial: The month of fish day is the number of beep that the divine creature must depart. for may is 5 and april 4.";
+  "the prayers and blessings of divine hermit will always be there";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -406,7 +406,6 @@ export default function Home() {
             </h1>
             <div className="animate-fade-up delay-2 quote-row">
               <p className="cosmic-quote">&ldquo;{COSMIC_QUOTE}&rdquo;</p>
-              <CosmicTransmit />
             </div>
             <SwimText />
           </div>
