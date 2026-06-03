@@ -269,7 +269,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "Comic Law 2 of hermit's universe: the bubbles are a safe haven, the fleeing man is a sign of danger. Divine creatures decide the nature of this land. which will it be?";
+  "Hermit's trial: The month of fish day is the number of beep that the divine creature must depart. for may is 5 and april 4.";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
