@@ -10,6 +10,7 @@ import WeatherWidget from "@/components/WeatherWidget";
 import ScrollingMessage from "@/components/ScrollingMessage";
 import ImageModal from "@/components/ImageModal";
 import CosmicTransmit from "@/components/CosmicTransmit";
+import HermitOracle from "@/components/HermitOracle";
 
 const PROMPT_FILES: PromptFile[] = [
   {
@@ -521,6 +522,8 @@ export default function Home() {
           &nbsp;&#x0CA0;&#x256D;&#x256E;&#x0CA0;
         </span>
       </div>
+
+      <HermitOracle />
 
       <Toast
         message={toast.message}

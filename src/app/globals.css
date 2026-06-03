@@ -1565,3 +1565,120 @@ body {
 .site-footer:hover .footer-face {
   color: var(--grey-dark);
 }
+
+/* ── Hermit's Oracle ── */
+.hermit-oracle {
+  position: fixed;
+  bottom: 40px;
+  right: 24px;
+  z-index: 100;
+  max-width: 300px;
+  font-family: var(--font-mono);
+  opacity: 0;
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 4.4s;
+}
+
+.hermit-oracle-text {
+  font-size: 0.91rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  color: var(--grey);
+  text-transform: lowercase;
+  margin: 0 0 10px 0;
+  opacity: 0.6;
+  transition: opacity 0.4s ease;
+}
+
+.hermit-oracle:hover .hermit-oracle-text {
+  opacity: 0.9;
+}
+
+.hermit-oracle-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.hermit-oracle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--fg);
+  background: rgba(0, 0, 0, 0.02);
+  font-size: 1rem;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+}
+
+.hermit-oracle-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--fg);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.hermit-oracle-btn:hover::before {
+  transform: scaleY(1);
+}
+
+.hermit-oracle-btn-label {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+
+.hermit-oracle-btn.hermit-oracle-btn-done {
+  border-color: var(--accent);
+  background: rgba(90, 138, 94, 0.06);
+  pointer-events: none;
+}
+
+.hermit-oracle-btn.hermit-oracle-btn-done::before {
+  display: none;
+}
+
+.hermit-oracle-btn.hermit-oracle-btn-sending {
+  pointer-events: none;
+  border-color: var(--accent);
+  animation: cosmicPulse 1.1s ease-in-out infinite;
+}
+
+.hermit-oracle-btn.hermit-oracle-btn-sending::before {
+  display: none;
+}
+
+.hermit-oracle-status {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--accent);
+  margin-top: 8px;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.4s ease,
+    height 0.3s ease;
+  pointer-events: none;
+}
+
+.hermit-oracle-status.hermit-oracle-status-visible {
+  height: 1.4em;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .hermit-oracle {
+    display: none;
+  }
+}
