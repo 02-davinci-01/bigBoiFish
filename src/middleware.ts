@@ -7,7 +7,7 @@ const redis = Redis.fromEnv();
 export async function middleware(req: NextRequest) {
   try {
     const killed = await redis.get("site:kill");
-    if (killed === "true") {
+    if (killed) {
       return new NextResponse("Not Found", { status: 404 });
     }
   } catch {
