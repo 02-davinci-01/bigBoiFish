@@ -30,11 +30,12 @@ export default function HermitOracle() {
   return (
     <div className="hermit-oracle">
       <p className="hermit-oracle-text">
-        According to hermit&rsquo;s theory of the universe, the souls of all
-        humans are infinite. Beyond space and time. Hence a thought will be
-        rendered here everyday for the divine creatures. The bubbles affirm while
-        the fleeing man negate. Oh divine traveller what shall it be?
+        The hermit&rsquo;s universe is wide and huge. Hence creatures need
+        cosmic language. The bubbles are to affirm and send a prayer while the
+        fleeing man negates and flare danger. So divine creature to whomsoever
+        this canvas has been rendered to. What shall it be?
       </p>
+
       <div className="hermit-oracle-buttons">
         <button
           className={`hermit-oracle-btn ${choice === "affirm" ? "hermit-oracle-btn-done" : ""} ${sending ? "hermit-oracle-btn-sending" : ""}`}
@@ -53,7 +54,9 @@ export default function HermitOracle() {
           <span className="hermit-oracle-btn-label">🏃</span>
         </button>
       </div>
-      <div className={`hermit-oracle-status ${choice ? "hermit-oracle-status-visible" : ""}`}>
+      <div
+        className={`hermit-oracle-status ${choice ? "hermit-oracle-status-visible" : ""}`}
+      >
         lightspeed
       </div>
     </div>
