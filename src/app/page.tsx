@@ -267,7 +267,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "the divine hermit prayers and blessing shall always be there";
+  "the divine hermit blessing and prayers will always be there.";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
