@@ -411,6 +411,8 @@ export default function Home() {
             <SwimText />
           </div>
 
+          <HermitOracle />
+
           {/* Image with progress bar cutting through */}
           <div
             className="animate-fade-up delay-3 image-container"
@@ -522,8 +524,6 @@ export default function Home() {
           &nbsp;&#x0CA0;&#x256D;&#x256E;&#x0CA0;
         </span>
       </div>
-
-      <HermitOracle />
 
       <Toast
         message={toast.message}
