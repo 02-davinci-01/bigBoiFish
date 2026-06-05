@@ -9,8 +9,6 @@ import Toast from "@/components/Toast";
 import WeatherWidget from "@/components/WeatherWidget";
 import ScrollingMessage from "@/components/ScrollingMessage";
 import ImageModal from "@/components/ImageModal";
-import CosmicTransmit from "@/components/CosmicTransmit";
-import HermitOracle from "@/components/HermitOracle";
 
 const PROMPT_FILES: PromptFile[] = [
   {
@@ -269,7 +267,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "the divine hermit hopes that the divine creatures are okay. Perhaps the wide spans and distances are too big to surmount for cosmos is huge. But the divine hermit prays";
+  "the divine hermit blessing and prayers will always be there.";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -406,12 +404,9 @@ export default function Home() {
             </h1>
             <div className="animate-fade-up delay-2 quote-row">
               <p className="cosmic-quote">&ldquo;{COSMIC_QUOTE}&rdquo;</p>
-              <CosmicTransmit />
             </div>
             <SwimText />
           </div>
-
-          <HermitOracle />
 
           {/* Image with progress bar cutting through */}
           <div
