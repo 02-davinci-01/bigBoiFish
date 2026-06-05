@@ -269,7 +269,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "Hermit's trial: The month of fish day is the number of beep that the divine creature must depart. for may is 5 and april 4.";
+  "the divine hermit hopes that the divine creatures are okay. Perhaps the wide spans and distances are too big to surmount for cosmos is huge. But the divine hermit prays";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
