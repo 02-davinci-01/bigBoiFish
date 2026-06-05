@@ -1567,6 +1567,20 @@ body {
 }
 
 /* ── Hermit's Oracle ── */
+@keyframes oracleGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px rgba(90, 138, 94, 0.08),
+      0 0 20px rgba(90, 138, 94, 0.04);
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(90, 138, 94, 0.2),
+      0 0 40px rgba(90, 138, 94, 0.08);
+  }
+}
+
 .hermit-oracle {
   position: fixed;
   bottom: 40px;
@@ -1575,8 +1589,12 @@ body {
   max-width: 300px;
   font-family: var(--font-mono);
   opacity: 0;
-  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 4.4s;
+  animation:
+    fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    oracleGlow 3s ease-in-out infinite;
+  animation-delay: 4.4s, 4.4s;
+  padding: 16px;
+  border-radius: 4px;
 }
 
 .hermit-oracle-text {
