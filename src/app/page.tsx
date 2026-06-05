@@ -269,7 +269,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "the divine hermit hopes that the divine creatures are okay. Perhaps the wide spans and distances are too big to surmount for cosmos is huge. But the divine hermit prays";
+  "should this canvas cease to exist the creature must transmit the fleeing man, else the bubble for a safe haven";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
