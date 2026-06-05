@@ -267,7 +267,7 @@ const HERO_IMAGE = {
 };
 
 const COSMIC_QUOTE =
-  "the divine hermit blessing and prayers will always be there.";
+  "Should this canvas cease to exist, divine creature, the fleeing man is rendered or if it must persist transmit the bubbles";
 
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
