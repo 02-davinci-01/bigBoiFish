@@ -815,76 +815,6 @@ body {
   }
 }
 
-/* ── Scrolling Message (top-right) ── */
-.scrolling-message {
-  position: fixed;
-  top: 16px;
-  right: 24px;
-  z-index: 100;
-  font-family: var(--font-mono);
-  font-size: 0.5rem;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
-  color: var(--grey-light);
-  text-align: right;
-  max-width: 360px;
-  padding-bottom: 4px;
-  width: 50%;
-  opacity: 0;
-  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 3.8s;
-}
-
-.scrolling-message::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 40%;
-  height: 0.5px;
-  background: var(--grey-dark);
-}
-
-.scrolling-message-text {
-  display: inline-flex;
-  white-space: pre;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.scrolling-message:hover .scrolling-message-text {
-  transform: scale(1.15);
-  transform-origin: right center;
-}
-
-.scrolling-letter {
-  display: inline-block;
-  width: 0.55em;
-  text-align: center;
-  transition:
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    text-shadow 0.3s ease;
-}
-
-.scrolling-message:hover .scrolling-letter {
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-}
-
-.scrolling-letter-space {
-  display: inline-block;
-  width: 0.35em;
-}
-
-.scrolling-cursor {
-  animation: terminalBlink 0.8s step-end infinite;
-  color: var(--grey);
-}
-
-@media (max-width: 640px) {
-  .scrolling-message {
-    display: none;
-  }
-}
 
 /* ── Scrollbar — hidden since no scroll ── */
 ::-webkit-scrollbar {
@@ -1195,6 +1125,486 @@ body {
   z-index: 1;
 }
 
+/* ── Gallery password gate ── */
+.gallery-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: titleSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s backwards;
+}
+
+.gallery-gate-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: var(--grey-dark);
+  font-style: italic;
+}
+
+.gallery-gate-row {
+  display: flex;
+  gap: 8px;
+}
+
+.gallery-gate-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--fg);
+  background: #fafafa;
+  border: 1px solid #d4d4d8;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.gallery-gate-input::placeholder {
+  color: var(--grey-light);
+  letter-spacing: 0.02em;
+  font-style: italic;
+}
+
+.gallery-gate-input:focus {
+  border-color: var(--fg);
+  background: #ffffff;
+}
+
+.gallery-gate-error {
+  border-color: #b91c1c;
+  animation: gateShake 0.4s ease;
+}
+
+.gallery-gate-error::placeholder {
+  color: #b91c1c;
+}
+
+@keyframes gateShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.gallery-gate-submit {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--fg);
+  border: 1px solid var(--fg);
+  padding: 0 20px;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.gallery-gate-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.gallery-gate-submit:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── Unlocked: the constellation ── */
+.modal-card-constellation {
+  width: 94vw;
+  height: 88vh;
+  max-width: 1180px;
+  background: radial-gradient(
+    ellipse at 50% 42%,
+    #100d18 0%,
+    #08060d 55%,
+    #030205 100%
+  );
+  border: 1px solid #17131f;
+}
+
+.modal-card-constellation .modal-close {
+  background: rgba(20, 16, 28, 0.6);
+  border-color: rgba(245, 205, 130, 0.25);
+  color: rgba(245, 225, 180, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.modal-card-constellation .modal-close:hover {
+  background: rgba(245, 200, 110, 0.9);
+  color: #100d18;
+  border-color: rgba(245, 205, 130, 0.6);
+}
+
+.constellation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  animation: overlayFadeIn 0.8s ease forwards;
+}
+
+.constellation-title {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  color: rgba(240, 226, 198, 0.32);
+  z-index: 6;
+  pointer-events: none;
+  animation: titleSlide 1s ease 0.4s backwards;
+}
+
+/* drifting background dust */
+.constellation-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.constellation-dust span {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff6df;
+  opacity: 0.35;
+  animation: dustTwinkle ease-in-out infinite;
+}
+
+@keyframes dustTwinkle {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.1);
+  }
+}
+
+/* constellation lines */
+.constellation-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.constellation-lines line {
+  stroke: rgba(245, 200, 120, 0.16);
+  stroke-width: 1;
+  animation: lineGlow 6s ease-in-out infinite;
+}
+
+@keyframes lineGlow {
+  0%,
+  100% {
+    stroke: rgba(245, 200, 120, 0.1);
+  }
+  50% {
+    stroke: rgba(245, 210, 140, 0.28);
+  }
+}
+
+/* shooting-star pulse travelling an edge */
+.edge-pulse {
+  position: absolute;
+  z-index: 2;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #fffdf6 0%, #ffe6a8 45%, rgba(245, 185, 66, 0) 100%);
+  box-shadow:
+    0 0 8px 3px rgba(255, 226, 160, 0.85),
+    0 0 16px 6px rgba(245, 180, 80, 0.4);
+}
+
+/* stars */
+.star {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  animation: starRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes starRise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.star-core {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    #ffe7ad 32%,
+    #f5b942 68%,
+    rgba(245, 185, 66, 0) 100%
+  );
+  box-shadow:
+    0 0 8px 2px rgba(255, 205, 115, 0.65),
+    0 0 20px 7px rgba(245, 170, 60, 0.28);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+
+.star-hub .star-core {
+  width: 20px;
+  height: 20px;
+  box-shadow:
+    0 0 14px 4px rgba(255, 215, 140, 0.7),
+    0 0 34px 12px rgba(245, 175, 65, 0.35);
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.star:hover {
+  z-index: 5;
+}
+
+.star:hover .star-core {
+  transform: scale(1.6);
+  animation-play-state: paused;
+}
+
+.star-label {
+  position: absolute;
+  top: calc(50% + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: rgba(248, 232, 200, 0.95);
+  text-shadow: 0 1px 6px #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.star:hover .star-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* expanded picture */
+.constellation-detail {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 2, 6, 0.86);
+  backdrop-filter: blur(4px);
+  animation: overlayFadeIn 0.35s ease forwards;
+}
+
+.constellation-detail-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  animation: detailBloom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes detailBloom {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.constellation-detail-image-wrap {
+  position: relative;
+  width: min(58vh, 76vw);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #0a0a10;
+  border: 1px solid rgba(245, 205, 130, 0.28);
+  box-shadow:
+    0 0 60px rgba(245, 180, 80, 0.16),
+    0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.constellation-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe7ad 0%, #f5b942 70%, transparent 100%);
+  animation: twinkle 1.4s ease-in-out infinite;
+}
+
+.constellation-detail-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.constellation-detail-image.is-loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.constellation-detail-caption {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(248, 234, 205, 0.95);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+  max-width: min(58vh, 76vw);
+}
+
+.constellation-detail-index {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: rgba(245, 205, 130, 0.55);
+}
+
+.constellation-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space);
+  font-size: 2rem;
+  line-height: 1;
+  color: rgba(245, 220, 175, 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.25s ease, transform 0.25s ease;
+  z-index: 11;
+}
+
+.constellation-nav:hover {
+  color: rgba(255, 225, 150, 1);
+}
+
+.constellation-prev {
+  left: 3%;
+}
+
+.constellation-prev:hover {
+  transform: translateY(-50%) translateX(-3px);
+}
+
+.constellation-next {
+  right: 3%;
+}
+
+.constellation-next:hover {
+  transform: translateY(-50%) translateX(3px);
+}
+
+.constellation-detail-close {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 16, 28, 0.6);
+  border: 1px solid rgba(245, 205, 130, 0.25);
+  color: rgba(245, 225, 180, 0.85);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 11;
+}
+
+.constellation-detail-close:hover {
+  background: rgba(245, 200, 110, 0.9);
+  color: #100d18;
+  transform: rotate(90deg);
+}
+
+@media (max-width: 768px) {
+  .modal-card-constellation {
+    width: 96vw;
+    height: 84vh;
+  }
+  .constellation-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+  }
+  .constellation-detail-image-wrap {
+    width: min(52vh, 86vw);
+  }
+  .constellation-detail-caption {
+    font-size: 0.72rem;
+    max-width: 86vw;
+  }
+  .constellation-nav {
+    width: 40px;
+    font-size: 1.6rem;
+  }
+}
+
 /* ── Modal Close Animations ── */
 .modal-overlay.modal-closing {
   animation: overlayFadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -1373,137 +1783,6 @@ body {
   color: var(--grey-dark);
 }
 
-/* ── Cosmic Transmit ── */
-.quote-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  max-width: 600px;
-}
-
-.cosmic-quote {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  color: var(--grey);
-  font-style: italic;
-  text-align: center;
-  max-width: 340px;
-  line-height: 1.6;
-  opacity: 0.65;
-  margin: 0;
-  transition: opacity 0.4s ease;
-}
-
-.cosmic-quote:hover {
-  opacity: 0.9;
-}
-
-.cosmic-btn {
-  position: relative;
-  flex: 0 0 auto;
-  width: fit-content;
-  min-width: 0 !important;
-  padding: 8px 16px;
-  height: auto;
-  font-size: 0.55rem;
-  letter-spacing: 0.1em;
-}
-
-/* allow the tooltip (positioned above the button) to escape the
-   magnetic-btn's overflow:hidden clip — higher specificity so it
-   wins regardless of compiled rule order */
-.magnetic-btn.cosmic-btn {
-  overflow: visible;
-}
-
-/* Clicked state — turns accent green */
-.cosmic-btn.cosmic-btn-done {
-  opacity: 1;
-  pointer-events: none;
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(90, 138, 94, 0.06);
-}
-
-.cosmic-btn.cosmic-btn-done:hover {
-  color: var(--accent);
-}
-
-.cosmic-btn.cosmic-btn-done::before {
-  display: none;
-}
-
-/* Label — keeps spinner + text aligned */
-.cosmic-btn-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-/* Transmitting / loading state */
-@keyframes cosmicPulse {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.cosmic-btn.cosmic-btn-transmitting {
-  pointer-events: none;
-  border-color: var(--accent);
-  color: var(--accent);
-  animation: cosmicPulse 1.1s ease-in-out infinite;
-}
-
-.cosmic-btn.cosmic-btn-transmitting::before {
-  display: none;
-}
-
-.cosmic-btn .cosmic-tooltip {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--fg);
-  color: var(--bg);
-  font-family: var(--font-mono);
-  font-size: 0.5rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
-  padding: 10px 14px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 101;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.cosmic-btn .cosmic-tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--fg);
-}
-
-.cosmic-btn:hover .cosmic-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
 /* ── Pond Ripple Background ── */
 @keyframes pondRipple {
   0% {
@@ -1583,251 +1862,426 @@ body {
   }
 }
 
-.hermit-oracle {
+/* ── Vinyl Player (top-right) — horizontal bar, song of the day ── */
+.vinyl-player {
   position: fixed;
-  top: 44px;
-  right: 24px;
+  top: 14px;
+  right: 20px;
   z-index: 100;
-  max-width: 300px;
-  width: auto;
-  font-family: var(--font-mono);
-  opacity: 0;
-  animation:
-    fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-    oracleGlow 3s ease-in-out infinite;
-  animation-delay: 4.4s, 4.4s;
-  padding: 12px 16px;
-  border-radius: 4px;
-  border: 1px solid rgba(90, 138, 94, 0.15);
-  background: rgba(90, 138, 94, 0.03);
-}
-
-.hermit-oracle-text {
-  font-size: 0.91rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1.8;
-  color: var(--grey);
-  text-transform: lowercase;
-  margin: 0 0 10px 0;
-  opacity: 0.6;
-  transition: opacity 0.4s ease;
-}
-
-.hermit-oracle:hover .hermit-oracle-text {
-  opacity: 0.9;
-}
-
-.hermit-oracle-buttons {
   display: flex;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  background: rgba(247, 248, 245, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--grey-light);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.03);
+  opacity: 0;
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 3.6s;
+  user-select: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.hermit-oracle-btn {
+.vinyl-player:hover {
+  border-color: var(--grey);
+  box-shadow: 0 2px 10px rgba(10, 10, 10, 0.05);
+}
+
+/* left column — track info + controls */
+.vinyl-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 132px;
+}
+
+.vinyl-caption {
+  font-family: var(--font-mono);
+  font-size: 0.44rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  transition: color 0.3s ease;
+}
+
+.vinyl-player:hover .vinyl-caption {
+  color: var(--accent);
+}
+
+/* ── Turntable — on the right ── */
+.vinyl-deck {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+}
+
+/* line-art record */
+.vinyl-disc {
+  display: block;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.is-spinning .vinyl-disc {
+  animation: vinylSpin 4s linear infinite;
+}
+
+@keyframes vinylSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-edge {
+  stroke: var(--fg);
+  stroke-width: 1.4;
+}
+
+.vinyl-groove {
+  stroke: var(--grey-dark);
+  stroke-width: 0.7;
+  opacity: 0.4;
+}
+
+.vinyl-tick {
+  stroke: var(--fg);
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+.vinyl-label {
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+
+.vinyl-spindle {
+  fill: var(--fg);
+}
+
+.vinyl-deck:hover .vinyl-label {
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+/* ── Tonearm ── */
+.vinyl-arm {
+  position: absolute;
+  top: -7px;
+  right: -6px;
+  transform-origin: 32.5px 9px;
+  transform: rotate(24deg);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.vinyl-arm-down {
+  transform: rotate(3deg);
+}
+
+.vinyl-arm-pivot {
+  fill: var(--bg);
+  stroke: var(--grey-dark);
+  stroke-width: 1.3;
+}
+
+.vinyl-arm-bolt {
+  fill: var(--grey-dark);
+}
+
+.vinyl-arm-bar {
+  stroke: var(--grey-dark);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.vinyl-arm-head {
+  stroke: var(--fg);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+/* ── Track meta ── */
+.vinyl-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  text-align: left;
+  width: 100%;
+}
+
+.vinyl-title {
+  font-family: var(--font-space);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--fg);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vinyl-artist {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+  color: var(--grey);
+}
+
+.vinyl-progress {
+  margin-top: 4px;
+  width: 100%;
+  height: 2px;
+  background: var(--grey-light);
+  opacity: 0.5;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.vinyl-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.25s linear;
+}
+
+/* ── Controls — below the title ── */
+.vinyl-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  margin-top: 5px;
+}
+
+.vinyl-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--fg);
-  background: rgba(0, 0, 0, 0.02);
-  font-size: 1rem;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  overflow: hidden;
-}
-
-.hermit-oracle-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--fg);
-  transform: scaleY(0);
-  transform-origin: bottom;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  z-index: 0;
-}
-
-.hermit-oracle-btn:hover::before {
-  transform: scaleY(1);
-}
-
-.hermit-oracle-btn-label {
-  position: relative;
-  z-index: 1;
-  line-height: 1;
-}
-
-.hermit-oracle-btn.hermit-oracle-btn-done {
-  border-color: var(--accent);
-  background: rgba(90, 138, 94, 0.06);
-  pointer-events: none;
-}
-
-.hermit-oracle-btn.hermit-oracle-btn-done::before {
-  display: none;
-}
-
-.hermit-oracle-btn.hermit-oracle-btn-sending {
-  pointer-events: none;
-  border-color: var(--accent);
-  animation: cosmicPulse 1.1s ease-in-out infinite;
-}
-
-.hermit-oracle-btn.hermit-oracle-btn-sending::before {
-  display: none;
-}
-
-.hermit-oracle-status {
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
-  color: var(--accent);
-  margin-top: 8px;
-  height: 0;
-  overflow: hidden;
-  opacity: 0;
+  border: 1px solid var(--grey-light);
+  background: transparent;
+  color: var(--grey-dark);
+  cursor: pointer;
   transition:
-    opacity 0.4s ease,
-    height 0.3s ease;
-  pointer-events: none;
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hermit-oracle-status.hermit-oracle-status-visible {
-  height: 1.4em;
-  opacity: 1;
+.vinyl-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  transform: translateY(-1px);
 }
 
-/* Desktop: show fixed oracle, hide trigger */
-.hermit-oracle-trigger {
-  display: none;
+.vinyl-btn:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+.vinyl-btn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.vinyl-btn-play {
+  width: 27px;
+  height: 27px;
+  border-color: var(--grey);
+  color: var(--fg);
+}
+
+.vinyl-btn-play.is-playing {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 @media (max-width: 640px) {
-  .hermit-oracle.hermit-oracle-desktop {
-    display: none !important;
+  .vinyl-player {
+    top: 10px;
+    right: 10px;
+    transform: scale(0.84);
+    transform-origin: top right;
   }
+}
+/* ── Woodcutter — "chop wood, carry water" pixel sprite (top strip) ── */
+.woodcutter {
+  position: fixed;
+  top: 14px;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 3.4s;
+}
 
-  .hermit-oracle-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    text-transform: lowercase;
-    color: var(--accent);
-    border: 1px solid rgba(90, 138, 94, 0.3);
-    background: rgba(90, 138, 94, 0.04);
-    border-radius: 4px;
-    padding: 8px 18px;
+.wc-figure {
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  width: 44px;
+  height: 50px;
+  transition: left var(--wc-walk, 4600ms) linear;
+  pointer-events: auto; /* hoverable, even though the bar itself isn't */
+  cursor: pointer;
+}
+
+/* frozen mid-stride while hovered — halt every loop */
+.wc-paused .wc-svg,
+.wc-paused .wc-frame-a,
+.wc-paused .wc-frame-b,
+.wc-paused .wc-sweat {
+  animation-play-state: paused !important;
+}
+
+/* hover box — same ink as the progress tooltip, sitting just under the sprite */
+.wc-tooltip {
+  position: absolute;
+  top: 58px;
+  transform: translateX(-50%);
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 9000;
+  animation: wcTipIn 0.2s ease forwards;
+}
+
+.wc-tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--fg);
+}
+
+@keyframes wcTipIn {
+  from {
     opacity: 0;
-    animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: 4.4s;
-    transition: all 0.3s ease;
+    transform: translateX(-50%) translateY(-3px);
   }
-
-  .hermit-oracle-trigger:hover {
-    border-color: var(--accent);
-    background: rgba(90, 138, 94, 0.08);
-  }
-
-  /* Modal overlay */
-  .hermit-oracle-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    z-index: 9990;
-    animation: oracleOverlayIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  @keyframes oracleOverlayIn {
-    to {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-    }
-  }
-
-  .hermit-oracle-overlay-closing {
-    animation: oracleOverlayOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  @keyframes oracleOverlayOut {
-    from {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-    }
-    to {
-      background: rgba(0, 0, 0, 0);
-      backdrop-filter: blur(0px);
-    }
-  }
-
-  /* Modal card — override base .hermit-oracle styles */
-  .hermit-oracle.hermit-oracle-modal {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    z-index: 9995;
-    max-width: 100%;
-    width: 100%;
-    border-radius: 16px 16px 0 0;
-    border: none;
-    border-top: 1px solid rgba(90, 138, 94, 0.2);
-    background: var(--bg);
-    padding: 24px 24px 32px;
+  to {
     opacity: 1;
-    animation: oracleSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform: translateX(-50%) translateY(0);
   }
+}
 
-  @keyframes oracleSlideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
+.wc-figure.wc-face-left {
+  transform: scaleX(-1);
+}
 
-  .hermit-oracle-modal-closing {
-    animation: oracleSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
+.wc-water {
+  --wc-fr: 0.42s;
+}
+.wc-chop {
+  --wc-fr: 0.92s;
+}
 
-  @keyframes oracleSlideDown {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(100%);
-    }
-  }
+.wc-svg {
+  display: block;
+  overflow: visible;
+  shape-rendering: crispEdges;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 1px 0 rgba(10, 10, 10, 0.12));
+}
 
-  .hermit-oracle-modal-close {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: 1px solid #e4e4e7;
-    border-radius: 50%;
-    font-size: 1.1rem;
-    color: var(--grey);
-    transition: all 0.3s ease;
-  }
+/* gentle bob while walking */
+.wc-water .wc-svg {
+  animation: wcBob var(--wc-fr) ease-in-out infinite;
+}
+@keyframes wcBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1px); }
+}
 
-  .hermit-oracle-modal-close:hover {
-    background: var(--fg);
-    color: var(--bg);
-    border-color: var(--fg);
+/* two-frame sprite animation: A and B alternate */
+.wc-frame-b {
+  opacity: 0;
+}
+.wc-frame-a {
+  animation: wcFrameA var(--wc-fr) step-end infinite;
+}
+.wc-frame-b {
+  animation: wcFrameB var(--wc-fr) step-end infinite;
+}
+@keyframes wcFrameA {
+  0%, 49.9% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes wcFrameB {
+  0%, 49.9% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+/* beads of sweat flicking off the brow — honest work */
+.wc-sweat {
+  position: absolute;
+  width: 3px;
+  height: 4px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #a9d4ee;
+  box-shadow: 0 0 2px rgba(120, 190, 230, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+.wc-sweat-a {
+  top: 8px;
+  left: 27px;
+  animation: wcSweat 2.4s ease-in infinite;
+}
+.wc-sweat-b {
+  top: 6px;
+  left: 24px;
+  animation: wcSweat 2.4s ease-in infinite 1.3s;
+}
+@keyframes wcSweat {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
   }
+  10% {
+    opacity: 0.95;
+    transform: translate(1px, -1px) scale(1);
+  }
+  35% {
+    opacity: 0.95;
+    transform: translate(5px, -2px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, 9px) scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-figure { transition: none; }
+  .wc-water .wc-svg,
+  .wc-frame-a,
+  .wc-frame-b { animation: none; }
+  .wc-frame-b { opacity: 0; }
+  .wc-sweat { animation: none; opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .woodcutter { display: none; }
 }

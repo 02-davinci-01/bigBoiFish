@@ -6,27 +6,12 @@ import GrainOverlay from "@/components/GrainOverlay";
 import FileSelector, { type PromptFile } from "@/components/FileSelector";
 import DownloadButton from "@/components/DownloadButton";
 import Toast from "@/components/Toast";
-import WeatherWidget from "@/components/WeatherWidget";
-import ScrollingMessage from "@/components/ScrollingMessage";
+import Woodcutter from "@/components/Woodcutter";
+import VinylPlayer from "@/components/VinylPlayer";
 import ImageModal from "@/components/ImageModal";
-import CosmicTransmit from "@/components/CosmicTransmit";
-import HermitOracle from "@/components/HermitOracle";
+import VisitorLog from "@/components/VisitorLog";
 
 const PROMPT_FILES: PromptFile[] = [
-  {
-    id: "cogni-mentor",
-    name: "cogni_mentor.json",
-    description: "Divine Study Mentor",
-    path: "/prompts/cogni_mentor.json",
-    size: "4.1 KB",
-  },
-  {
-    id: "exam-mentor",
-    name: "exam_mentor.json",
-    description: "End-Sem Tutor Assistant",
-    path: "/prompts/exam_mentor.json",
-    size: "4.3 KB",
-  },
   {
     id: "swim-pdf",
     name: "swim_.pdf",
@@ -35,18 +20,11 @@ const PROMPT_FILES: PromptFile[] = [
     size: "847 KB",
   },
   {
-    id: "nom-nom-pdf",
-    name: "nom_nom_.pdf",
-    description: "Bibamus, moriendum est",
-    path: "/prompts/nom_nom_.pdf",
-    size: "155 KB",
-  },
-  {
-    id: "redbull-pdf",
-    name: "redbull_.pdf",
-    description: "save a can for me.",
-    path: "/prompts/redbull_.pdf",
-    size: "68 KB",
+    id: "prayers-blessings",
+    name: "prayers_blessings.jpg",
+    description: "dio mio dio mio",
+    path: "/prompts/prayers_blessings.jpg",
+    size: "3.2 MB",
   },
 ];
 
@@ -268,9 +246,6 @@ const HERO_IMAGE = {
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
 };
 
-const COSMIC_QUOTE =
-  "should this canvas cease to exist the creature must transmit the fleeing man, else the bubble for a safe haven";
-
 export default function Home() {
   const [selected, setSelected] = useState<string[]>([]);
   const [toast, setToast] = useState({ visible: false, message: "" });
@@ -278,13 +253,13 @@ export default function Home() {
   const [progressHover, setProgressHover] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
-  // Progress bar: Jan 30, 2026 → Jun 30, 2026
+  // Progress bar: Jan 30, 2026 → Mar 31, 2027
   const [progressPercent, setProgressPercent] = useState(0);
   const [daysCompleted, setDaysCompleted] = useState(0);
   const [daysLeft, setDaysLeft] = useState(0);
   useEffect(() => {
     const start = new Date("2026-01-30").getTime();
-    const end = new Date("2026-06-30").getTime();
+    const end = new Date("2027-03-31").getTime();
     const now = Date.now();
     setProgressPercent(
       Math.round(
@@ -320,6 +295,7 @@ export default function Home() {
     <>
       <CustomCursor />
       <GrainOverlay />
+      <VisitorLog />
 
       {/* Page loader — slot machine */}
       <PageLoader />
@@ -327,9 +303,9 @@ export default function Home() {
       {/* Thin structural line at top */}
       <div className="top-rule" />
 
-      {/* Weather top-left, Messages top-right */}
-      <WeatherWidget />
-      <ScrollingMessage />
+      {/* Woodcutter roams the top, Vinyl player top-right */}
+      <Woodcutter />
+      <VinylPlayer />
 
       {/* Main content — single viewport, no scroll */}
       <div className="page-content">
@@ -404,14 +380,8 @@ export default function Home() {
             >
               BIG BOI FISH
             </h1>
-            <div className="animate-fade-up delay-2 quote-row">
-              <p className="cosmic-quote">&ldquo;{COSMIC_QUOTE}&rdquo;</p>
-              <CosmicTransmit />
-            </div>
             <SwimText />
           </div>
-
-          <HermitOracle />
 
           {/* Image with progress bar cutting through */}
           <div
@@ -485,7 +455,7 @@ export default function Home() {
             <div className="progress-tooltip-divider" />
             <div className="progress-tooltip-row">
               <span className="progress-tooltip-label">performance</span>
-              <span className="progress-tooltip-value">9.1/10</span>
+              <span className="progress-tooltip-value">gorg</span>
             </div>
           </div>
 

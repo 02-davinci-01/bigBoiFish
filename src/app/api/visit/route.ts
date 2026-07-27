@@ -80,8 +80,12 @@ function yn(val: unknown): string {
 }
 
 export async function POST(req: Request) {
-  await redis.incr("visit:total");
-  await sendNotification(req);
+  // Fire the ntfy ping and bump the counter independently — a Redis hiccup
+  // must never swallow the visit notification (or 500 the client).
+  await Promise.allSettled([
+    redis.incr("visit:total"),
+    sendNotification(req),
+  ]);
   return NextResponse.json({ ok: true });
 }
 
